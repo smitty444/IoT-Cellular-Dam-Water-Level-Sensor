@@ -1,0 +1,49 @@
+
+*****Full Disclosure*****
+
+The DHEC-developed version of this arduino app that uses MQTT was never intended to be more than proof-of-concept for further development, and to facilitate USC senior design testing.
+
+This program is based off of a 'Botletics' tutorial & SIMCom Library similar to that which was used for the original USC demo. 
+
+The Botletics SIMCom library has significant limitations & liabilities. Particularly, any elements on the session and transport layers of cellular communication are certainly outside of [frazerss]'s ability to assimilate with confidence with the available resources.
+
+"Substantially advanced cellular networking is indistinguishable from magic." -> Thus there may be inefficiencies or completely backwards problems that are due to misinterpretation of a function's function.
+
+---- At some point, a substantial overhaul of this code may be warranted, if not absolutely necessary. ----
+
+
+*****Botletics Library, Demo, and Schematic GitHub*****
+https://github.com/botletics/SIM7000-LTE-Shield
+
+
+*****Accessing *****
+ZIP File access and extraction:
+Extract "Arduino_Functional_Libraries_v7_1-6-2022.zip" and place (beware copying and replacing) the 'Arduino' folder in a user's documents folder.
+
+(If issues exist in running v7, 'v6 Stable' is a version that was burned into a zip with all of the necessary included libraries in the same directory for cross-person sending, but there are some minor updates in apparently necessary delay timings from v6 to v7)
+
+
+
+*****SSF Known Issues*****
+
+PRIORITY:
+***USB logging is completely non-functional at this time, this should be a priority for data review.
+***Pressure sensor is returning exclusively 5V (max PSI reading). Likely broken or otherwise shorted.
+**Library management in Arduino environment is problematic, and inhibits attempts at source control.
+*Ultrasonic sensor variability during tests at USC was problematic. (Rainfall/interference, moisture, noise... all may play factors in U/S sensor issues.)
+
+NORMAL:
+**Suspect that the complete enclosure of cellular antenna substantially decreases cellular transport-level issues.
+*High-level functions can likely be optimized for memory and time optimization. (Lower-level library functions may prove to be limiting factor.)
+*Subscription Checking of the Publish Frequency Control feed is irregular at best
+*Variable Names are Problematic
+*Email event can probably be deactivated until data calibration issues can be sorted
+
+
+LOW:
+*Substantial potential for memory optimization exists
+*Must break up JSON publish strings into three separate publish events
+*Email event process likely needs significant revision
+
+
+
