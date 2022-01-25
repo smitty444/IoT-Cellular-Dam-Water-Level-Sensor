@@ -54,7 +54,7 @@ Adafruit_MQTT_Publish feed_stage = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/f
 // THE SUBSCRIBING FEEDS -----------------------------------------------------------------------------
 Adafruit_MQTT_Subscribe feed_led_toggle = Adafruit_MQTT_Subscribe(&mqtt, AIO_USERNAME "/feeds/led-toggle");
 //Adafruit_MQTT_Subscribe feed_led_selection = Adafruit_MQTT_Subscribe(&mqtt, AIO_USERNAME "/feeds/led-selection");
-Adafruit_MQTT_Subscribe feed_deploy = Adafruit_MQTT_Subscribe(&mqtt, AIO_USERNAME, "/feeds/deploy");
+Adafruit_MQTT_Subscribe feed_deploy = Adafruit_MQTT_Subscribe(&mqtt, AIO_USERNAME "/feeds/deploy");
 Adafruit_MQTT_Subscribe feed_sampling_rate = Adafruit_MQTT_Subscribe(&mqtt, AIO_USERNAME "/feeds/sampling-rate");
 
 // construct the BMP280
@@ -71,7 +71,7 @@ char imei[16] = {0};
 bool deployed = false;
 bool pin_state = true;
 float initial_distance = 0;
-float sea_level = 200;
+float sea_level = 0;
 
 void setup() {
   Serial.begin(9600);
