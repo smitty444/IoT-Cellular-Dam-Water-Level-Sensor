@@ -8,9 +8,17 @@
 - Outdated from current Adafruit IO dashboard
 
 # WHS_v1
-- the most recent code created by Corinne
+- created by Corinne
 - Publishing feeds: location, temperature, pressure, stage
 - Subscribing feeds: led toggle, sampling rate
+
+# WHS_v1.1
+- created by Corinne
+- Publishing feeds: location, temperature, pressure, stage
+- Subscribing feeds: deployment toggle, sampling rate, initial sea level elevation
+- main feature is adding a while loop in the setup that will take in all subscriptions
+to initialize parameters, then only start data collection once the deployment button
+is toggled
 
 # debugging
 - folder contains small sketches for troubleshooting sensors, logic flows, etc
