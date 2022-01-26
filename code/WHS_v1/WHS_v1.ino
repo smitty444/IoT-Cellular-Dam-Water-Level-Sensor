@@ -1,13 +1,10 @@
-/*  This example sketch allows your device to collect GPS, temperature, and battery
-    data and send those values via MQTT to Adafruit IO. You can connect, publish, and
-    subsribe to MQTT topics. Works great on the Botletics SIM7000 shield! Just make
-    sure to replace Adafruit IO credentials with your own, and change the names of the
-    feeds you want to use to publish and subscribe.
-
-    Author: Timothy Woo (www.botletics.com)
-    Github: https://github.com/botletics/SIM7000-LTE-Shield
-    Last Updated: 1/7/2021
-    License: GNU GPL v3.0
+/*  
+ *   This sketch uses a SIM7000A fona shield on an Arduino Mega to send water level, pressure, location, and temperature
+ *   data to an Adafruit IO dashboard. The sampling rate and LED on pin 13 are controlled from the dashboard. MQTT 
+ *   protocol is used.
+ *   
+ *   Written by Corinne Smith Jan 2022
+ *   Adapted from: botletics, Adafruit
 */
 
 #include "Adafruit_FONA.h"            // from botletics: https://github.com/botletics/SIM7000-LTE-Shield/tree/master/Code
