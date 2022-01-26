@@ -1,13 +1,7 @@
-/*  This example sketch allows your device to collect GPS, temperature, and battery
-    data and send those values via MQTT to Adafruit IO. You can connect, publish, and
-    subsribe to MQTT topics. Works great on the Botletics SIM7000 shield! Just make
-    sure to replace Adafruit IO credentials with your own, and change the names of the
-    feeds you want to use to publish and subscribe.
+/*
+     An example sketch to test the deployment switch logic design
 
-    Author: Timothy Woo (www.botletics.com)
-    Github: https://github.com/botletics/SIM7000-LTE-Shield
-    Last Updated: 1/7/2021
-    License: GNU GPL v3.0
+     Written by Corinne Smith Jan 2022
 */
 
 #include "Adafruit_FONA.h"            // from botletics: https://github.com/botletics/SIM7000-LTE-Shield/tree/master/Code
@@ -22,8 +16,8 @@
 // FONA PINS -----------------------------------------------------------------------------------------
 #define FONA_PWRKEY 6
 #define FONA_RST 7
-#define FONA_TX 10 
-#define FONA_RX 11 
+#define FONA_TX 10
+#define FONA_RX 11
 
 #define LED 13
 int sampling_rate = 15;                // initialize the delay between loops. This can be changed with subscribe
@@ -56,6 +50,7 @@ Adafruit_MQTT_Subscribe feed_led_toggle = Adafruit_MQTT_Subscribe(&mqtt, AIO_USE
 //Adafruit_MQTT_Subscribe feed_led_selection = Adafruit_MQTT_Subscribe(&mqtt, AIO_USERNAME "/feeds/led-selection");
 Adafruit_MQTT_Subscribe feed_deploy = Adafruit_MQTT_Subscribe(&mqtt, AIO_USERNAME "/feeds/deploy");
 Adafruit_MQTT_Subscribe feed_sampling_rate = Adafruit_MQTT_Subscribe(&mqtt, AIO_USERNAME "/feeds/sampling-rate");
+Adafruit_MQTT_Subscribe feed_sea_level = Adafruit_MQTT_Subscribe(&mqtt, AIO_USERNAME "/feeds/initial-sea-level");
 
 // construct the BMP280
 Adafruit_BMP280 bmp;
@@ -67,9 +62,9 @@ NewPing sonar(trigPin, echoPin);
 
 // some global variables
 uint8_t readline(char *buff, uint8_t maxbuff, uint16_t timeout = 0);
-char imei[16] = {0}; 
+char imei[16] = {0};
 bool deployed = false;
-bool pin_state = true;
+bool new_time = false;
 float initial_distance = 0;
 float sea_level = 0;
 
@@ -88,10 +83,10 @@ void setup() {
   pinMode(FONA_RST, OUTPUT);
   digitalWrite(FONA_RST, HIGH);             // reset is default high
 
-  fona.powerOn(FONA_PWRKEY);                // power on fona by pulsing power key 
-  
+  fona.powerOn(FONA_PWRKEY);                // power on fona by pulsing power key
+
   moduleSetup();                            // establish serial communication, find fona, determine device IMEI
-  
+
   fona.setFunctionality(1);                 // set fona to its full functionality (AT+CFUN=1)
 
   fona.setNetworkSettings(F("hologram"));   // sets APN as 'hologram', used with Hologram SIM card
@@ -103,7 +98,7 @@ void setup() {
     Serial.println(F("Failed to turn on GPS, retrying..."));
     delay(2000); // Retry every 2s
   }
-  Serial.println(F("Turned on GPS!")); 
+  Serial.println(F("Turned on GPS!"));
 
   // first disable data
   if (!fona.enableGPRS(false)) Serial.println(F("Failed to disable data!"));
@@ -121,6 +116,7 @@ void setup() {
   //mqtt.subscribe(&feed_led_selection);
   mqtt.subscribe(&feed_deploy);
   mqtt.subscribe(&feed_sampling_rate);
+  mqtt.subscribe(&feed_sea_level);
 
   // begin the BMP280
   bmp.begin(0x76);      // bmp.begin(I2C_address)
@@ -130,12 +126,54 @@ void setup() {
                   Adafruit_BMP280::FILTER_X16,      /* Filtering. */
                   Adafruit_BMP280::STANDBY_MS_500); /* Standby time. */
 
+  // connect to cell network
+  while (!netStatus()) {
+    Serial.println(F("Failed to connect to cell network, retrying..."));
+    delay(2000); // Retry every 2s
+  }
+  Serial.println(F("Connected to cell network!"));
+  readRSSI();
+  
+  // first ensure that we are finished configuring everything in Adafruit IO and want the package to start collecting data
+  while (! deployed) {
+
+    MQTT_connect();
+    // subscription packet subloop, this runs and waits for the toggle switch in Adafruit IO to turn on
+    Adafruit_MQTT_Subscribe *subscription;
+    while ((subscription = mqtt.readSubscription(5000))) {
+      if (subscription == &feed_deploy) {
+        Serial.print(F("***Received: ")); Serial.println((char *)feed_deploy.lastread);
+        if (strcmp(feed_deploy.lastread, "ON") == 0) {
+          Serial.println(F("***Package is deployed"));
+          deployed = true;
+        }
+        else if (strcmp(feed_deploy.lastread, "OFF") == 0) {
+          Serial.println(F("***Package not ready"));
+          //delay(5000);    // wait five seconds to not spam the serial monitor
+        }
+      }
+      if (subscription == &feed_sea_level) {
+        Serial.print(F("*** Got: "));
+        Serial.println((char *)feed_sea_level.lastread);
+        delay(100);
+        sea_level = atoi((char *)feed_sea_level.lastread);
+      }
+      if (subscription == &feed_sampling_rate) {
+        Serial.print(F("*** Got: "));
+        Serial.println((char *)feed_sampling_rate.lastread);
+        delay(100);
+        new_time = true;
+      }
+    }
+    delay(3000);
+  }
+
   // find the initial distance that will correspond to sea level
-  while(initial_distance <= 0) {
+  while (initial_distance <= 0) {
     initial_distance = sonar.ping_in();
     delay(50);
   }
-  initial_distance = initial_distance/12;
+  initial_distance = initial_distance / 12;
   Serial.print("initial distance: "); Serial.print(initial_distance); Serial.println(" ft");
   delay(50);
 }
@@ -148,42 +186,7 @@ void loop() {
   }
   Serial.println(F("Connected to cell network!"));
   readRSSI();
-  
-  // first ensure that we are finished configuring everything in Adafruit IO and want the package to start collecting data
-  while (! deployed) {
-    
-    MQTT_connect();
-    // subscription packet subloop, this runs and waits for the toggle switch in Adafruit IO to turn on
-    Adafruit_MQTT_Subscribe *subscription;
-    while ((subscription = mqtt.readSubscription(5000))) {
-      if (subscription == &feed_deploy) {
-        Serial.print(F("***Received: ")); Serial.println((char *)feed_deploy.lastread);
-      }
-      if (subscription == &feed_led_toggle) {
-      Serial.print(F("*** Got: "));
-      Serial.println((char *)feed_led_toggle.lastread);
-      delay(100);
-    }
-    if (subscription == &feed_sampling_rate) {
-      Serial.print(F("*** Got: "));
-      Serial.println((char *)feed_sampling_rate.lastread);
-      delay(100);
-    }
-   }
-    if (strcmp(feed_deploy.lastread, "ON") == 0) {
-      Serial.println(F("***Package is deployed"));
-      deployed = true;
-    }
-    else if (strcmp(feed_deploy.lastread, "OFF") == 0) {
-      Serial.println(F("***Package not ready"));
-      //delay(5000);    // wait five seconds to not spam the serial monitor
-    }
-    else {
-      Serial.println("***No packet received");
-    }
-    delay(3000);
-  }
-  
+
   // take temperature data
   float celsius = bmp.readTemperature();
   Serial.print(F("Temperature = "));
@@ -203,11 +206,11 @@ void loop() {
 
   // take stage data
   float distance = 0;
-  while(distance <= 0) {
+  while (distance <= 0) {
     distance = sonar.ping_in();
     delay(50);
   }
-  distance = distance/12;
+  distance = distance / 12;
   Serial.print("distance: "); Serial.print(distance); Serial.println(" ft");
   distance = sea_level + (initial_distance - distance);
   Serial.print("above sea level: "); Serial.print(distance); Serial.println(" ft");
@@ -215,8 +218,6 @@ void loop() {
   dtostrf(distance, 1, 2, stageBuff);
 
   Serial.println(F("---------------------"));
-
-  bool new_time = false;
 
   // connect to MQTT
   MQTT_connect();
@@ -248,10 +249,11 @@ void loop() {
   MQTT_publish_checkSuccess(feed_pressure, pressBuff);
 
   // reassign the sampling rate
-  if(new_time == true) {
+  if (new_time == true) {
     sampling_rate = atoi((char *)feed_sampling_rate.lastread);
     delay(100);
     Serial.println(F("New sampling rate: ")); Serial.print(sampling_rate);
+    new_time = false;   // reset the boolean
   }
 
   // check if deployment was turned off
