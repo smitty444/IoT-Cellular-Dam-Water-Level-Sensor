@@ -20,5 +20,10 @@
 to initialize parameters, then only start data collection once the deployment button
 is toggled
 
+# WHS 1.1.2 
+- created by Corinne
+- same feeds as v1.1
+- pressure sensor added
+
 # debugging
 - folder contains small sketches for troubleshooting sensors, logic flows, etc
