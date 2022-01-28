@@ -78,7 +78,7 @@ float sea_level = 0;
 
 void setup() {
   Serial.begin(9600);
-  Serial.println(F("*** Executing WHS_v1.ino ***"));
+  Serial.println(F("*** Executing WHS_v1.1.2.ino ***"));
 
   // configure the led
   pinMode(LED, OUTPUT);
@@ -186,7 +186,8 @@ void setup() {
   delay(50);
 
   // find the initial pressure reading that will correspond to sea level
-  float voltage = analogRead(pressurePin)*(5/1024);      // convert 10 bit analog reading to voltage
+  float voltage = analogRead(pressurePin);      // convert 10 bit analog reading to voltage
+  voltage = voltage*5/1024;
   initial_feet_of_water = voltage*5.7724 - 2.8862;        // 0.5-4.5V maps to 0-23.1 feet of water
   Serial.print("initial feet of water: "); Serial.print(initial_feet_of_water); Serial.println(" ft");
   delay(50);
@@ -232,7 +233,8 @@ void loop() {
   dtostrf(distance, 1, 2, stageBuff);
 
   // take stage pressure data
-  float voltage = analogRead(pressurePin)*(5/1024);                                             // convert 10 bit analog reading to voltage
+  float voltage = analogRead(pressurePin);                                                     // convert 10 bit analog reading to voltage
+  voltage = voltage*5/1023;
   float feet_of_water = voltage*5.7724 - 2.8862;                                               // 0.5-4.5V maps to 0-23.1 feet of water
   Serial.print("Feet above sensor: "); Serial.print(feet_of_water); Serial.println(" ft");
   feet_of_water = sea_level + (feet_of_water - initial_feet_of_water);
@@ -276,7 +278,7 @@ void loop() {
   if (new_time == true) {
     sampling_rate = atoi((char *)feed_sampling_rate.lastread);
     delay(100);
-    Serial.println(F("New sampling rate: ")); Serial.print(sampling_rate);
+    Serial.print(F("New sampling rate: ")); Serial.println(sampling_rate);
     new_time = false;   // reset the boolean
   }
 
