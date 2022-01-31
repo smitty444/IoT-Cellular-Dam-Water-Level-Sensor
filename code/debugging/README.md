@@ -9,3 +9,6 @@
 
 # ping_tester
 - tests the JSN-SR04 ultrasonic sensor with the NewPing library
+
+# pressure_tester
+- tests the pressure transducer using analog input and two different calibration equations
