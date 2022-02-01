@@ -1,0 +1,1658 @@
+Executing pressure_tester.ino
+Type in the water's elevation before pressing the button to collect five data readings.
+Elevation: 16.6 ft
+Reading: 726.00
+Voltage: 3.55
+Using field equation: 7.89 psi
+	18.23 ft of water
+Using linear scaling: 7.62 psi
+	17.60 ft of water
+
+Reading: 726.00
+Voltage: 3.55
+Using field equation: 7.89 psi
+	18.23 ft of water
+Using linear scaling: 7.62 psi
+	17.60 ft of water
+
+Reading: 726.00
+Voltage: 3.55
+Using field equation: 7.89 psi
+	18.23 ft of water
+Using linear scaling: 7.62 psi
+	17.60 ft of water
+
+Reading: 726.00
+Voltage: 3.55
+Using field equation: 7.89 psi
+	18.23 ft of water
+Using linear scaling: 7.62 psi
+	17.60 ft of water
+
+Reading: 726.00
+Voltage: 3.55
+Using field equation: 7.89 psi
+	18.23 ft of water
+Using linear scaling: 7.62 psi
+	17.60 ft of water
+
+Elevation: 13.98 ft
+Reading: 628.00
+Voltage: 3.07
+Using field equation: 6.69 psi
+	15.46 ft of water
+Using linear scaling: 6.42 psi
+	14.83 ft of water
+
+Reading: 628.00
+Voltage: 3.07
+Using field equation: 6.69 psi
+	15.46 ft of water
+Using linear scaling: 6.42 psi
+	14.83 ft of water
+
+Reading: 628.00
+Voltage: 3.07
+Using field equation: 6.69 psi
+	15.46 ft of water
+Using linear scaling: 6.42 psi
+	14.83 ft of water
+
+Reading: 628.00
+Voltage: 3.07
+Using field equation: 6.69 psi
+	15.46 ft of water
+Using linear scaling: 6.42 psi
+	14.83 ft of water
+
+Reading: 628.00
+Voltage: 3.07
+Using field equation: 6.69 psi
+	15.46 ft of water
+Using linear scaling: 6.42 psi
+	14.83 ft of water
+
+Elevation: 13.49 ft
+Reading: 609.00
+Voltage: 2.98
+Using field equation: 6.46 psi
+	14.92 ft of water
+Using linear scaling: 6.19 psi
+	14.30 ft of water
+
+Reading: 610.00
+Voltage: 2.98
+Using field equation: 6.47 psi
+	14.95 ft of water
+Using linear scaling: 6.20 psi
+	14.32 ft of water
+
+Reading: 610.00
+Voltage: 2.98
+Using field equation: 6.47 psi
+	14.95 ft of water
+Using linear scaling: 6.20 psi
+	14.32 ft of water
+
+Reading: 610.00
+Voltage: 2.98
+Using field equation: 6.47 psi
+	14.95 ft of water
+Using linear scaling: 6.20 psi
+	14.32 ft of water
+
+Reading: 610.00
+Voltage: 2.98
+Using field equation: 6.47 psi
+	14.95 ft of water
+Using linear scaling: 6.20 psi
+	14.32 ft of water
+
+Elevation: 11.62 ft
+Reading: 541.00
+Voltage: 2.64
+Using field equation: 5.63 psi
+	13.00 ft of water
+Using linear scaling: 5.36 psi
+	12.38 ft of water
+
+Reading: 541.00
+Voltage: 2.64
+Using field equation: 5.63 psi
+	13.00 ft of water
+Using linear scaling: 5.36 psi
+	12.38 ft of water
+
+Reading: 541.00
+Voltage: 2.64
+Using field equation: 5.63 psi
+	13.00 ft of water
+Using linear scaling: 5.36 psi
+	12.38 ft of water
+
+Reading: 541.00
+Voltage: 2.64
+Using field equation: 5.63 psi
+	13.00 ft of water
+Using linear scaling: 5.36 psi
+	12.38 ft of water
+
+Reading: 541.00
+Voltage: 2.64
+Using field equation: 5.63 psi
+	13.00 ft of water
+Using linear scaling: 5.36 psi
+	12.38 ft of water
+
+Elevation: 11.46 ft
+Reading: 536.00
+Voltage: 2.62
+Using field equation: 5.57 psi
+	12.86 ft of water
+Using linear scaling: 5.30 psi
+	12.24 ft of water
+
+Reading: 536.00
+Voltage: 2.62
+Using field equation: 5.57 psi
+	12.86 ft of water
+Using linear scaling: 5.30 psi
+	12.24 ft of water
+
+Reading: 535.00
+Voltage: 2.61
+Using field equation: 5.56 psi
+	12.83 ft of water
+Using linear scaling: 5.29 psi
+	12.21 ft of water
+
+Reading: 535.00
+Voltage: 2.61
+Using field equation: 5.56 psi
+	12.83 ft of water
+Using linear scaling: 5.29 psi
+	12.21 ft of water
+
+Reading: 535.00
+Voltage: 2.61
+Using field equation: 5.56 psi
+	12.83 ft of water
+Using linear scaling: 5.29 psi
+	12.21 ft of water
+
+Elevation: 11.125 ft
+Reading: 522.00
+Voltage: 2.55
+Using field equation: 5.40 psi
+	12.46 ft of water
+Using linear scaling: 5.13 psi
+	11.84 ft of water
+
+Reading: 523.00
+Voltage: 2.56
+Using field equation: 5.41 psi
+	12.49 ft of water
+Using linear scaling: 5.14 psi
+	11.87 ft of water
+
+Reading: 522.00
+Voltage: 2.55
+Using field equation: 5.40 psi
+	12.46 ft of water
+Using linear scaling: 5.13 psi
+	11.84 ft of water
+
+Reading: 522.00
+Voltage: 2.55
+Using field equation: 5.40 psi
+	12.46 ft of water
+Using linear scaling: 5.13 psi
+	11.84 ft of water
+
+Reading: 523.00
+Voltage: 2.56
+Using field equation: 5.41 psi
+	12.49 ft of water
+Using linear scaling: 5.14 psi
+	11.87 ft of water
+
+Elevation: 10.7 ft
+Reading: 508.00
+Voltage: 2.48
+Using field equation: 5.22 psi
+	12.06 ft of water
+Using linear scaling: 4.96 psi
+	11.45 ft of water
+
+Reading: 508.00
+Voltage: 2.48
+Using field equation: 5.22 psi
+	12.06 ft of water
+Using linear scaling: 4.96 psi
+	11.45 ft of water
+
+Reading: 508.00
+Voltage: 2.48
+Using field equation: 5.22 psi
+	12.06 ft of water
+Using linear scaling: 4.96 psi
+	11.45 ft of water
+
+Reading: 508.00
+Voltage: 2.48
+Using field equation: 5.22 psi
+	12.06 ft of water
+Using linear scaling: 4.96 psi
+	11.45 ft of water
+
+Reading: 508.00
+Voltage: 2.48
+Using field equation: 5.22 psi
+	12.06 ft of water
+Using linear scaling: 4.96 psi
+	11.45 ft of water
+
+Elevation: 10.46 ft
+Reading: 498.00
+Voltage: 2.43
+Using field equation: 5.10 psi
+	11.78 ft of water
+Using linear scaling: 4.84 psi
+	11.16 ft of water
+
+Reading: 499.00
+Voltage: 2.44
+Using field equation: 5.11 psi
+	11.81 ft of water
+Using linear scaling: 4.85 psi
+	11.19 ft of water
+
+Reading: 499.00
+Voltage: 2.44
+Using field equation: 5.11 psi
+	11.81 ft of water
+Using linear scaling: 4.85 psi
+	11.19 ft of water
+
+Reading: 499.00
+Voltage: 2.44
+Using field equation: 5.11 psi
+	11.81 ft of water
+Using linear scaling: 4.85 psi
+	11.19 ft of water
+
+Reading: 498.00
+Voltage: 2.43
+Using field equation: 5.10 psi
+	11.78 ft of water
+Using linear scaling: 4.84 psi
+	11.16 ft of water
+
+Elevation: 10.21 ft
+Reading: 489.00
+Voltage: 2.39
+Using field equation: 4.99 psi
+	11.53 ft of water
+Using linear scaling: 4.73 psi
+	10.91 ft of water
+
+Reading: 489.00
+Voltage: 2.39
+Using field equation: 4.99 psi
+	11.53 ft of water
+Using linear scaling: 4.73 psi
+	10.91 ft of water
+
+Reading: 489.00
+Voltage: 2.39
+Using field equation: 4.99 psi
+	11.53 ft of water
+Using linear scaling: 4.73 psi
+	10.91 ft of water
+
+Reading: 489.00
+Voltage: 2.39
+Using field equation: 4.99 psi
+	11.53 ft of water
+Using linear scaling: 4.73 psi
+	10.91 ft of water
+
+Reading: 489.00
+Voltage: 2.39
+Using field equation: 4.99 psi
+	11.53 ft of water
+Using linear scaling: 4.73 psi
+	10.91 ft of water
+
+Elevation: 9.88 ft
+Reading: 477.00
+Voltage: 2.33
+Using field equation: 4.85 psi
+	11.19 ft of water
+Using linear scaling: 4.58 psi
+	10.57 ft of water
+
+Reading: 477.00
+Voltage: 2.33
+Using field equation: 4.85 psi
+	11.19 ft of water
+Using linear scaling: 4.58 psi
+	10.57 ft of water
+
+Reading: 477.00
+Voltage: 2.33
+Using field equation: 4.85 psi
+	11.19 ft of water
+Using linear scaling: 4.58 psi
+	10.57 ft of water
+
+Reading: 477.00
+Voltage: 2.33
+Using field equation: 4.85 psi
+	11.19 ft of water
+Using linear scaling: 4.58 psi
+	10.57 ft of water
+
+Reading: 477.00
+Voltage: 2.33
+Using field equation: 4.85 psi
+	11.19 ft of water
+Using linear scaling: 4.58 psi
+	10.57 ft of water
+
+Elevation: 9.7 ft
+Reading: 468.00
+Voltage: 2.29
+Using field equation: 4.74 psi
+	10.93 ft of water
+Using linear scaling: 4.47 psi
+	10.32 ft of water
+
+Reading: 468.00
+Voltage: 2.29
+Using field equation: 4.74 psi
+	10.93 ft of water
+Using linear scaling: 4.47 psi
+	10.32 ft of water
+
+Reading: 468.00
+Voltage: 2.29
+Using field equation: 4.74 psi
+	10.93 ft of water
+Using linear scaling: 4.47 psi
+	10.32 ft of water
+
+Reading: 468.00
+Voltage: 2.29
+Using field equation: 4.74 psi
+	10.93 ft of water
+Using linear scaling: 4.47 psi
+	10.32 ft of water
+
+Reading: 468.00
+Voltage: 2.29
+Using field equation: 4.74 psi
+	10.93 ft of water
+Using linear scaling: 4.47 psi
+	10.32 ft of water
+
+Elevation: 9.15 ft
+Reading: 450.00
+Voltage: 2.20
+Using field equation: 4.51 psi
+	10.42 ft of water
+Using linear scaling: 4.25 psi
+	9.81 ft of water
+
+Reading: 450.00
+Voltage: 2.20
+Using field equation: 4.51 psi
+	10.42 ft of water
+Using linear scaling: 4.25 psi
+	9.81 ft of water
+
+Reading: 450.00
+Voltage: 2.20
+Using field equation: 4.51 psi
+	10.42 ft of water
+Using linear scaling: 4.25 psi
+	9.81 ft of water
+
+Reading: 450.00
+Voltage: 2.20
+Using field equation: 4.51 psi
+	10.42 ft of water
+Using linear scaling: 4.25 psi
+	9.81 ft of water
+
+Reading: 450.00
+Voltage: 2.20
+Using field equation: 4.51 psi
+	10.42 ft of water
+Using linear scaling: 4.25 psi
+	9.81 ft of water
+
+Elevation: 7.69 ft
+Reading: 396.00
+Voltage: 1.94
+Using field equation: 3.85 psi
+	8.90 ft of water
+Using linear scaling: 3.59 psi
+	8.29 ft of water
+
+Reading: 396.00
+Voltage: 1.94
+Using field equation: 3.85 psi
+	8.90 ft of water
+Using linear scaling: 3.59 psi
+	8.29 ft of water
+
+Reading: 396.00
+Voltage: 1.94
+Using field equation: 3.85 psi
+	8.90 ft of water
+Using linear scaling: 3.59 psi
+	8.29 ft of water
+
+Reading: 396.00
+Voltage: 1.94
+Using field equation: 3.85 psi
+	8.90 ft of water
+Using linear scaling: 3.59 psi
+	8.29 ft of water
+
+Reading: 396.00
+Voltage: 1.94
+Using field equation: 3.85 psi
+	8.90 ft of water
+Using linear scaling: 3.59 psi
+	8.29 ft of water
+
+Elevation: 7,.21 ft
+Reading: 378.00
+Voltage: 1.85
+Using field equation: 3.63 psi
+	8.39 ft of water
+Using linear scaling: 3.37 psi
+	7.78 ft of water
+
+Reading: 378.00
+Voltage: 1.85
+Using field equation: 3.63 psi
+	8.39 ft of water
+Using linear scaling: 3.37 psi
+	7.78 ft of water
+
+Reading: 378.00
+Voltage: 1.85
+Using field equation: 3.63 psi
+	8.39 ft of water
+Using linear scaling: 3.37 psi
+	7.78 ft of water
+
+Reading: 378.00
+Voltage: 1.85
+Using field equation: 3.63 psi
+	8.39 ft of water
+Using linear scaling: 3.37 psi
+	7.78 ft of water
+
+Reading: 378.00
+Voltage: 1.85
+Using field equation: 3.63 psi
+	8.39 ft of water
+Using linear scaling: 3.37 psi
+	7.78 ft of water
+
+Elevation: 6.85 ft
+Reading: 366.00
+Voltage: 1.79
+Using field equation: 3.49 psi
+	8.05 ft of water
+Using linear scaling: 3.22 psi
+	7.44 ft of water
+
+Reading: 366.00
+Voltage: 1.79
+Using field equation: 3.49 psi
+	8.05 ft of water
+Using linear scaling: 3.22 psi
+	7.44 ft of water
+
+Reading: 366.00
+Voltage: 1.79
+Using field equation: 3.49 psi
+	8.05 ft of water
+Using linear scaling: 3.22 psi
+	7.44 ft of water
+
+Reading: 365.00
+Voltage: 1.78
+Using field equation: 3.47 psi
+	8.02 ft of water
+Using linear scaling: 3.21 psi
+	7.41 ft of water
+
+Reading: 366.00
+Voltage: 1.79
+Using field equation: 3.49 psi
+	8.05 ft of water
+Using linear scaling: 3.22 psi
+	7.44 ft of water
+
+Elevation: 6.583 ft
+Reading: 356.00
+Voltage: 1.74
+Using field equation: 3.36 psi
+	7.77 ft of water
+Using linear scaling: 3.10 psi
+	7.16 ft of water
+
+Reading: 355.00
+Voltage: 1.74
+Using field equation: 3.35 psi
+	7.74 ft of water
+Using linear scaling: 3.09 psi
+	7.13 ft of water
+
+Reading: 356.00
+Voltage: 1.74
+Using field equation: 3.36 psi
+	7.77 ft of water
+Using linear scaling: 3.10 psi
+	7.16 ft of water
+
+Reading: 355.00
+Voltage: 1.74
+Using field equation: 3.35 psi
+	7.74 ft of water
+Using linear scaling: 3.09 psi
+	7.13 ft of water
+
+Reading: 356.00
+Voltage: 1.74
+Using field equation: 3.36 psi
+	7.77 ft of water
+Using linear scaling: 3.10 psi
+	7.16 ft of water
+
+Elevation: 6.46 ft
+Reading: 351.00
+Voltage: 1.72
+Using field equation: 3.30 psi
+	7.63 ft of water
+Using linear scaling: 3.04 psi
+	7.02 ft of water
+
+Reading: 351.00
+Voltage: 1.72
+Using field equation: 3.30 psi
+	7.63 ft of water
+Using linear scaling: 3.04 psi
+	7.02 ft of water
+
+Reading: 351.00
+Voltage: 1.72
+Using field equation: 3.30 psi
+	7.63 ft of water
+Using linear scaling: 3.04 psi
+	7.02 ft of water
+
+Reading: 351.00
+Voltage: 1.72
+Using field equation: 3.30 psi
+	7.63 ft of water
+Using linear scaling: 3.04 psi
+	7.02 ft of water
+
+Reading: 351.00
+Voltage: 1.72
+Using field equation: 3.30 psi
+	7.63 ft of water
+Using linear scaling: 3.04 psi
+	7.02 ft of water
+
+Elevation: 6.21 ft
+Reading: 342.00
+Voltage: 1.67
+Using field equation: 3.19 psi
+	7.37 ft of water
+Using linear scaling: 2.93 psi
+	6.76 ft of water
+
+Reading: 342.00
+Voltage: 1.67
+Using field equation: 3.19 psi
+	7.37 ft of water
+Using linear scaling: 2.93 psi
+	6.76 ft of water
+
+Reading: 342.00
+Voltage: 1.67
+Using field equation: 3.19 psi
+	7.37 ft of water
+Using linear scaling: 2.93 psi
+	6.76 ft of water
+
+Reading: 342.00
+Voltage: 1.67
+Using field equation: 3.19 psi
+	7.37 ft of water
+Using linear scaling: 2.93 psi
+	6.76 ft of water
+
+Reading: 342.00
+Voltage: 1.67
+Using field equation: 3.19 psi
+	7.37 ft of water
+Using linear scaling: 2.93 psi
+	6.76 ft of water
+
+Elevation: 6.041 ft
+Reading: 336.00
+Voltage: 1.64
+Using field equation: 3.12 psi
+	7.20 ft of water
+Using linear scaling: 2.86 psi
+	6.59 ft of water
+
+Reading: 336.00
+Voltage: 1.64
+Using field equation: 3.12 psi
+	7.20 ft of water
+Using linear scaling: 2.86 psi
+	6.59 ft of water
+
+Reading: 336.00
+Voltage: 1.64
+Using field equation: 3.12 psi
+	7.20 ft of water
+Using linear scaling: 2.86 psi
+	6.59 ft of water
+
+Reading: 336.00
+Voltage: 1.64
+Using field equation: 3.12 psi
+	7.20 ft of water
+Using linear scaling: 2.86 psi
+	6.59 ft of water
+
+Reading: 336.00
+Voltage: 1.64
+Using field equation: 3.12 psi
+	7.20 ft of water
+Using linear scaling: 2.86 psi
+	6.59 ft of water
+
+Elevation: 5.93 ft
+Reading: 331.00
+Voltage: 1.62
+Using field equation: 3.06 psi
+	7.06 ft of water
+Using linear scaling: 2.79 psi
+	6.45 ft of water
+
+Reading: 331.00
+Voltage: 1.62
+Using field equation: 3.06 psi
+	7.06 ft of water
+Using linear scaling: 2.79 psi
+	6.45 ft of water
+
+Reading: 331.00
+Voltage: 1.62
+Using field equation: 3.06 psi
+	7.06 ft of water
+Using linear scaling: 2.79 psi
+	6.45 ft of water
+
+Reading: 332.00
+Voltage: 1.62
+Using field equation: 3.07 psi
+	7.09 ft of water
+Using linear scaling: 2.81 psi
+	6.48 ft of water
+
+Reading: 332.00
+Voltage: 1.62
+Using field equation: 3.07 psi
+	7.09 ft of water
+Using linear scaling: 2.81 psi
+	6.48 ft of water
+
+Elevation: 5.75 ft
+Reading: 324.00
+Voltage: 1.58
+Using field equation: 2.97 psi
+	6.86 ft of water
+Using linear scaling: 2.71 psi
+	6.25 ft of water
+
+Reading: 324.00
+Voltage: 1.58
+Using field equation: 2.97 psi
+	6.86 ft of water
+Using linear scaling: 2.71 psi
+	6.25 ft of water
+
+Reading: 325.00
+Voltage: 1.59
+Using field equation: 2.98 psi
+	6.89 ft of water
+Using linear scaling: 2.72 psi
+	6.28 ft of water
+
+Reading: 324.00
+Voltage: 1.58
+Using field equation: 2.97 psi
+	6.86 ft of water
+Using linear scaling: 2.71 psi
+	6.25 ft of water
+
+Reading: 324.00
+Voltage: 1.58
+Using field equation: 2.97 psi
+	6.86 ft of water
+Using linear scaling: 2.71 psi
+	6.25 ft of water
+
+Elevation: 5.66 ft
+Reading: 321.00
+Voltage: 1.57
+Using field equation: 2.94 psi
+	6.78 ft of water
+Using linear scaling: 2.67 psi
+	6.17 ft of water
+
+Reading: 322.00
+Voltage: 1.57
+Using field equation: 2.95 psi
+	6.81 ft of water
+Using linear scaling: 2.68 psi
+	6.20 ft of water
+
+Reading: 322.00
+Voltage: 1.57
+Using field equation: 2.95 psi
+	6.81 ft of water
+Using linear scaling: 2.68 psi
+	6.20 ft of water
+
+Reading: 322.00
+Voltage: 1.57
+Using field equation: 2.95 psi
+	6.81 ft of water
+Using linear scaling: 2.68 psi
+	6.20 ft of water
+
+Reading: 322.00
+Voltage: 1.57
+Using field equation: 2.95 psi
+	6.81 ft of water
+Using linear scaling: 2.68 psi
+	6.20 ft of water
+
+Elevation: 5.43 ft
+Reading: 312.00
+Voltage: 1.52
+Using field equation: 2.83 psi
+	6.52 ft of water
+Using linear scaling: 2.56 psi
+	5.92 ft of water
+
+Reading: 313.00
+Voltage: 1.53
+Using field equation: 2.84 psi
+	6.55 ft of water
+Using linear scaling: 2.57 psi
+	5.94 ft of water
+
+Reading: 312.00
+Voltage: 1.52
+Using field equation: 2.83 psi
+	6.52 ft of water
+Using linear scaling: 2.56 psi
+	5.92 ft of water
+
+Reading: 313.00
+Voltage: 1.53
+Using field equation: 2.84 psi
+	6.55 ft of water
+Using linear scaling: 2.57 psi
+	5.94 ft of water
+
+Reading: 312.00
+Voltage: 1.52
+Using field equation: 2.83 psi
+	6.52 ft of water
+Using linear scaling: 2.56 psi
+	5.92 ft of water
+
+Elevation: 5.29 ft
+Reading: 307.00
+Voltage: 1.50
+Using field equation: 2.76 psi
+	6.38 ft of water
+Using linear scaling: 2.50 psi
+	5.78 ft of water
+
+Reading: 307.00
+Voltage: 1.50
+Using field equation: 2.76 psi
+	6.38 ft of water
+Using linear scaling: 2.50 psi
+	5.78 ft of water
+
+Reading: 307.00
+Voltage: 1.50
+Using field equation: 2.76 psi
+	6.38 ft of water
+Using linear scaling: 2.50 psi
+	5.78 ft of water
+
+Reading: 308.00
+Voltage: 1.51
+Using field equation: 2.78 psi
+	6.41 ft of water
+Using linear scaling: 2.51 psi
+	5.80 ft of water
+
+Reading: 307.00
+Voltage: 1.50
+Using field equation: 2.76 psi
+	6.38 ft of water
+Using linear scaling: 2.50 psi
+	5.78 ft of water
+
+Elevation: 5.1 ft
+Reading: 300.00
+Voltage: 1.47
+Using field equation: 2.68 psi
+	6.18 ft of water
+Using linear scaling: 2.42 psi
+	5.58 ft of water
+
+Reading: 300.00
+Voltage: 1.47
+Using field equation: 2.68 psi
+	6.18 ft of water
+Using linear scaling: 2.42 psi
+	5.58 ft of water
+
+Reading: 300.00
+Voltage: 1.47
+Using field equation: 2.68 psi
+	6.18 ft of water
+Using linear scaling: 2.42 psi
+	5.58 ft of water
+
+Reading: 300.00
+Voltage: 1.47
+Using field equation: 2.68 psi
+	6.18 ft of water
+Using linear scaling: 2.42 psi
+	5.58 ft of water
+
+Reading: 300.00
+Voltage: 1.47
+Using field equation: 2.68 psi
+	6.18 ft of water
+Using linear scaling: 2.42 psi
+	5.58 ft of water
+
+Elevation: 4.86 ft
+Reading: 291.00
+Voltage: 1.42
+Using field equation: 2.57 psi
+	5.93 ft of water
+Using linear scaling: 2.31 psi
+	5.32 ft of water
+
+Reading: 291.00
+Voltage: 1.42
+Using field equation: 2.57 psi
+	5.93 ft of water
+Using linear scaling: 2.31 psi
+	5.32 ft of water
+
+Reading: 291.00
+Voltage: 1.42
+Using field equation: 2.57 psi
+	5.93 ft of water
+Using linear scaling: 2.31 psi
+	5.32 ft of water
+
+Reading: 291.00
+Voltage: 1.42
+Using field equation: 2.57 psi
+	5.93 ft of water
+Using linear scaling: 2.31 psi
+	5.32 ft of water
+
+Reading: 291.00
+Voltage: 1.42
+Using field equation: 2.57 psi
+	5.93 ft of water
+Using linear scaling: 2.31 psi
+	5.32 ft of water
+
+Elevation: 4.6 ft
+Reading: 281.00
+Voltage: 1.37
+Using field equation: 2.45 psi
+	5.65 ft of water
+Using linear scaling: 2.18 psi
+	5.04 ft of water
+
+Reading: 282.00
+Voltage: 1.38
+Using field equation: 2.46 psi
+	5.68 ft of water
+Using linear scaling: 2.20 psi
+	5.07 ft of water
+
+Reading: 282.00
+Voltage: 1.38
+Using field equation: 2.46 psi
+	5.68 ft of water
+Using linear scaling: 2.20 psi
+	5.07 ft of water
+
+Reading: 282.00
+Voltage: 1.38
+Using field equation: 2.46 psi
+	5.68 ft of water
+Using linear scaling: 2.20 psi
+	5.07 ft of water
+
+Reading: 282.00
+Voltage: 1.38
+Using field equation: 2.46 psi
+	5.68 ft of water
+Using linear scaling: 2.20 psi
+	5.07 ft of water
+
+Elevation: 4.32 ft
+Reading: 271.00
+Voltage: 1.32
+Using field equation: 2.32 psi
+	5.37 ft of water
+Using linear scaling: 2.06 psi
+	4.76 ft of water
+
+Reading: 271.00
+Voltage: 1.32
+Using field equation: 2.32 psi
+	5.37 ft of water
+Using linear scaling: 2.06 psi
+	4.76 ft of water
+
+Reading: 271.00
+Voltage: 1.32
+Using field equation: 2.32 psi
+	5.37 ft of water
+Using linear scaling: 2.06 psi
+	4.76 ft of water
+
+Reading: 271.00
+Voltage: 1.32
+Using field equation: 2.32 psi
+	5.37 ft of water
+Using linear scaling: 2.06 psi
+	4.76 ft of water
+
+Reading: 271.00
+Voltage: 1.32
+Using field equation: 2.32 psi
+	5.37 ft of water
+Using linear scaling: 2.06 psi
+	4.76 ft of water
+
+Elevation: 4.125 ft
+Reading: 264.00
+Voltage: 1.29
+Using field equation: 2.24 psi
+	5.17 ft of water
+Using linear scaling: 1.98 psi
+	4.56 ft of water
+
+Reading: 264.00
+Voltage: 1.29
+Using field equation: 2.24 psi
+	5.17 ft of water
+Using linear scaling: 1.98 psi
+	4.56 ft of water
+
+Reading: 264.00
+Voltage: 1.29
+Using field equation: 2.24 psi
+	5.17 ft of water
+Using linear scaling: 1.98 psi
+	4.56 ft of water
+
+Reading: 264.00
+Voltage: 1.29
+Using field equation: 2.24 psi
+	5.17 ft of water
+Using linear scaling: 1.98 psi
+	4.56 ft of water
+
+Reading: 264.00
+Voltage: 1.29
+Using field equation: 2.24 psi
+	5.17 ft of water
+Using linear scaling: 1.98 psi
+	4.56 ft of water
+
+Elevation: 3.83 ft
+Reading: 253.00
+Voltage: 1.24
+Using field equation: 2.10 psi
+	4.86 ft of water
+Using linear scaling: 1.84 psi
+	4.25 ft of water
+
+Reading: 254.00
+Voltage: 1.24
+Using field equation: 2.12 psi
+	4.88 ft of water
+Using linear scaling: 1.85 psi
+	4.28 ft of water
+
+Reading: 254.00
+Voltage: 1.24
+Using field equation: 2.12 psi
+	4.88 ft of water
+Using linear scaling: 1.85 psi
+	4.28 ft of water
+
+Reading: 254.00
+Voltage: 1.24
+Using field equation: 2.12 psi
+	4.88 ft of water
+Using linear scaling: 1.85 psi
+	4.28 ft of water
+
+Reading: 254.00
+Voltage: 1.24
+Using field equation: 2.12 psi
+	4.88 ft of water
+Using linear scaling: 1.85 psi
+	4.28 ft of water
+
+Elevation: 3.67 ft
+Reading: 247.00
+Voltage: 1.21
+Using field equation: 2.03 psi
+	4.69 ft of water
+Using linear scaling: 1.77 psi
+	4.08 ft of water
+
+Reading: 247.00
+Voltage: 1.21
+Using field equation: 2.03 psi
+	4.69 ft of water
+Using linear scaling: 1.77 psi
+	4.08 ft of water
+
+Reading: 247.00
+Voltage: 1.21
+Using field equation: 2.03 psi
+	4.69 ft of water
+Using linear scaling: 1.77 psi
+	4.08 ft of water
+
+Reading: 247.00
+Voltage: 1.21
+Using field equation: 2.03 psi
+	4.69 ft of water
+Using linear scaling: 1.77 psi
+	4.08 ft of water
+
+Reading: 247.00
+Voltage: 1.21
+Using field equation: 2.03 psi
+	4.69 ft of water
+Using linear scaling: 1.77 psi
+	4.08 ft of water
+
+Elevation: 3.43 ft
+Reading: 238.00
+Voltage: 1.16
+Using field equation: 1.92 psi
+	4.43 ft of water
+Using linear scaling: 1.66 psi
+	3.83 ft of water
+
+Reading: 239.00
+Voltage: 1.17
+Using field equation: 1.93 psi
+	4.46 ft of water
+Using linear scaling: 1.67 psi
+	3.86 ft of water
+
+Reading: 239.00
+Voltage: 1.17
+Using field equation: 1.93 psi
+	4.46 ft of water
+Using linear scaling: 1.67 psi
+	3.86 ft of water
+
+Reading: 238.00
+Voltage: 1.16
+Using field equation: 1.92 psi
+	4.43 ft of water
+Using linear scaling: 1.66 psi
+	3.83 ft of water
+
+Reading: 238.00
+Voltage: 1.16
+Using field equation: 1.92 psi
+	4.43 ft of water
+Using linear scaling: 1.66 psi
+	3.83 ft of water
+
+Elevation: 3.14 ft
+Reading: 228.00
+Voltage: 1.11
+Using field equation: 1.80 psi
+	4.15 ft of water
+Using linear scaling: 1.54 psi
+	3.55 ft of water
+
+Reading: 228.00
+Voltage: 1.11
+Using field equation: 1.80 psi
+	4.15 ft of water
+Using linear scaling: 1.54 psi
+	3.55 ft of water
+
+Reading: 228.00
+Voltage: 1.11
+Using field equation: 1.80 psi
+	4.15 ft of water
+Using linear scaling: 1.54 psi
+	3.55 ft of water
+
+Reading: 228.00
+Voltage: 1.11
+Using field equation: 1.80 psi
+	4.15 ft of water
+Using linear scaling: 1.54 psi
+	3.55 ft of water
+
+Reading: 228.00
+Voltage: 1.11
+Using field equation: 1.80 psi
+	4.15 ft of water
+Using linear scaling: 1.54 psi
+	3.55 ft of water
+
+Elevation: 2.93 ft
+Reading: 220.00
+Voltage: 1.08
+Using field equation: 1.70 psi
+	3.92 ft of water
+Using linear scaling: 1.44 psi
+	3.32 ft of water
+
+Reading: 220.00
+Voltage: 1.08
+Using field equation: 1.70 psi
+	3.92 ft of water
+Using linear scaling: 1.44 psi
+	3.32 ft of water
+
+Reading: 219.00
+Voltage: 1.07
+Using field equation: 1.69 psi
+	3.90 ft of water
+Using linear scaling: 1.43 psi
+	3.29 ft of water
+
+Reading: 220.00
+Voltage: 1.08
+Using field equation: 1.70 psi
+	3.92 ft of water
+Using linear scaling: 1.44 psi
+	3.32 ft of water
+
+Reading: 220.00
+Voltage: 1.08
+Using field equation: 1.70 psi
+	3.92 ft of water
+Using linear scaling: 1.44 psi
+	3.32 ft of water
+
+Elevation: 2.69 ft
+Reading: 211.00
+Voltage: 1.03
+Using field equation: 1.59 psi
+	3.67 ft of water
+Using linear scaling: 1.33 psi
+	3.07 ft of water
+
+Reading: 211.00
+Voltage: 1.03
+Using field equation: 1.59 psi
+	3.67 ft of water
+Using linear scaling: 1.33 psi
+	3.07 ft of water
+
+Reading: 211.00
+Voltage: 1.03
+Using field equation: 1.59 psi
+	3.67 ft of water
+Using linear scaling: 1.33 psi
+	3.07 ft of water
+
+Reading: 211.00
+Voltage: 1.03
+Using field equation: 1.59 psi
+	3.67 ft of water
+Using linear scaling: 1.33 psi
+	3.07 ft of water
+
+Reading: 211.00
+Voltage: 1.03
+Using field equation: 1.59 psi
+	3.67 ft of water
+Using linear scaling: 1.33 psi
+	3.07 ft of water
+
+Elevation: 2.42 ft
+Reading: 201.00
+Voltage: 0.98
+Using field equation: 1.47 psi
+	3.39 ft of water
+Using linear scaling: 1.21 psi
+	2.78 ft of water
+
+Reading: 201.00
+Voltage: 0.98
+Using field equation: 1.47 psi
+	3.39 ft of water
+Using linear scaling: 1.21 psi
+	2.78 ft of water
+
+Reading: 201.00
+Voltage: 0.98
+Using field equation: 1.47 psi
+	3.39 ft of water
+Using linear scaling: 1.21 psi
+	2.78 ft of water
+
+Reading: 201.00
+Voltage: 0.98
+Using field equation: 1.47 psi
+	3.39 ft of water
+Using linear scaling: 1.21 psi
+	2.78 ft of water
+
+Reading: 201.00
+Voltage: 0.98
+Using field equation: 1.47 psi
+	3.39 ft of water
+Using linear scaling: 1.21 psi
+	2.78 ft of water
+
+Elevation: 2.145 ft
+Reading: 191.00
+Voltage: 0.93
+Using field equation: 1.34 psi
+	3.10 ft of water
+Using linear scaling: 1.08 psi
+	2.50 ft of water
+
+Reading: 191.00
+Voltage: 0.93
+Using field equation: 1.34 psi
+	3.10 ft of water
+Using linear scaling: 1.08 psi
+	2.50 ft of water
+
+Reading: 191.00
+Voltage: 0.93
+Using field equation: 1.34 psi
+	3.10 ft of water
+Using linear scaling: 1.08 psi
+	2.50 ft of water
+
+Reading: 190.00
+Voltage: 0.93
+Using field equation: 1.33 psi
+	3.08 ft of water
+Using linear scaling: 1.07 psi
+	2.47 ft of water
+
+Reading: 191.00
+Voltage: 0.93
+Using field equation: 1.34 psi
+	3.10 ft of water
+Using linear scaling: 1.08 psi
+	2.50 ft of water
+
+Elevation: 1.97 ft
+Reading: 181.00
+Voltage: 0.88
+Using field equation: 1.22 psi
+	2.82 ft of water
+Using linear scaling: 0.96 psi
+	2.22 ft of water
+
+Reading: 181.00
+Voltage: 0.88
+Using field equation: 1.22 psi
+	2.82 ft of water
+Using linear scaling: 0.96 psi
+	2.22 ft of water
+
+Reading: 181.00
+Voltage: 0.88
+Using field equation: 1.22 psi
+	2.82 ft of water
+Using linear scaling: 0.96 psi
+	2.22 ft of water
+
+Reading: 181.00
+Voltage: 0.88
+Using field equation: 1.22 psi
+	2.82 ft of water
+Using linear scaling: 0.96 psi
+	2.22 ft of water
+
+Reading: 181.00
+Voltage: 0.88
+Using field equation: 1.22 psi
+	2.82 ft of water
+Using linear scaling: 0.96 psi
+	2.22 ft of water
+
+Elevation: 1.76 ft
+Reading: 174.00
+Voltage: 0.85
+Using field equation: 1.14 psi
+	2.62 ft of water
+Using linear scaling: 0.88 psi
+	2.02 ft of water
+
+Reading: 174.00
+Voltage: 0.85
+Using field equation: 1.14 psi
+	2.62 ft of water
+Using linear scaling: 0.88 psi
+	2.02 ft of water
+
+Reading: 174.00
+Voltage: 0.85
+Using field equation: 1.14 psi
+	2.62 ft of water
+Using linear scaling: 0.88 psi
+	2.02 ft of water
+
+Reading: 174.00
+Voltage: 0.85
+Using field equation: 1.14 psi
+	2.62 ft of water
+Using linear scaling: 0.88 psi
+	2.02 ft of water
+
+Reading: 173.00
+Voltage: 0.85
+Using field equation: 1.12 psi
+	2.60 ft of water
+Using linear scaling: 0.86 psi
+	1.99 ft of water
+
+Elevation: 1.416 ft
+Reading: 164.00
+Voltage: 0.80
+Using field equation: 1.01 psi
+	2.34 ft of water
+Using linear scaling: 0.75 psi
+	1.74 ft of water
+
+Reading: 164.00
+Voltage: 0.80
+Using field equation: 1.01 psi
+	2.34 ft of water
+Using linear scaling: 0.75 psi
+	1.74 ft of water
+
+Reading: 164.00
+Voltage: 0.80
+Using field equation: 1.01 psi
+	2.34 ft of water
+Using linear scaling: 0.75 psi
+	1.74 ft of water
+
+Reading: 164.00
+Voltage: 0.80
+Using field equation: 1.01 psi
+	2.34 ft of water
+Using linear scaling: 0.75 psi
+	1.74 ft of water
+
+Reading: 164.00
+Voltage: 0.80
+Using field equation: 1.01 psi
+	2.34 ft of water
+Using linear scaling: 0.75 psi
+	1.74 ft of water
+
+Elevation: 1.17 ft
+Reading: 154.00
+Voltage: 0.75
+Using field equation: 0.89 psi
+	2.06 ft of water
+Using linear scaling: 0.63 psi
+	1.46 ft of water
+
+Reading: 154.00
+Voltage: 0.75
+Using field equation: 0.89 psi
+	2.06 ft of water
+Using linear scaling: 0.63 psi
+	1.46 ft of water
+
+Reading: 154.00
+Voltage: 0.75
+Using field equation: 0.89 psi
+	2.06 ft of water
+Using linear scaling: 0.63 psi
+	1.46 ft of water
+
+Reading: 155.00
+Voltage: 0.76
+Using field equation: 0.90 psi
+	2.09 ft of water
+Using linear scaling: 0.64 psi
+	1.49 ft of water
+
+Reading: 155.00
+Voltage: 0.76
+Using field equation: 0.90 psi
+	2.09 ft of water
+Using linear scaling: 0.64 psi
+	1.49 ft of water
+
+Elevation: 0.875 ft
+Reading: 144.00
+Voltage: 0.70
+Using field equation: 0.77 psi
+	1.78 ft of water
+Using linear scaling: 0.51 psi
+	1.18 ft of water
+
+Reading: 144.00
+Voltage: 0.70
+Using field equation: 0.77 psi
+	1.78 ft of water
+Using linear scaling: 0.51 psi
+	1.18 ft of water
+
+Reading: 144.00
+Voltage: 0.70
+Using field equation: 0.77 psi
+	1.78 ft of water
+Using linear scaling: 0.51 psi
+	1.18 ft of water
+
+Reading: 144.00
+Voltage: 0.70
+Using field equation: 0.77 psi
+	1.78 ft of water
+Using linear scaling: 0.51 psi
+	1.18 ft of water
+
+Reading: 144.00
+Voltage: 0.70
+Using field equation: 0.77 psi
+	1.78 ft of water
+Using linear scaling: 0.51 psi
+	1.18 ft of water
+
+Elevation: 0.67 ft
+Reading: 136.00
+Voltage: 0.66
+Using field equation: 0.67 psi
+	1.55 ft of water
+Using linear scaling: 0.41 psi
+	0.95 ft of water
+
+Reading: 136.00
+Voltage: 0.66
+Using field equation: 0.67 psi
+	1.55 ft of water
+Using linear scaling: 0.41 psi
+	0.95 ft of water
+
+Reading: 136.00
+Voltage: 0.66
+Using field equation: 0.67 psi
+	1.55 ft of water
+Using linear scaling: 0.41 psi
+	0.95 ft of water
+
+Reading: 136.00
+Voltage: 0.66
+Using field equation: 0.67 psi
+	1.55 ft of water
+Using linear scaling: 0.41 psi
+	0.95 ft of water
+
+Reading: 136.00
+Voltage: 0.66
+Using field equation: 0.67 psi
+	1.55 ft of water
+Using linear scaling: 0.41 psi
+	0.95 ft of water
+
+Elevation: 0.5 ft
+Reading: 131.00
+Voltage: 0.64
+Using field equation: 0.61 psi
+	1.41 ft of water
+Using linear scaling: 0.35 psi
+	0.81 ft of water
+
+Reading: 130.00
+Voltage: 0.64
+Using field equation: 0.60 psi
+	1.38 ft of water
+Using linear scaling: 0.34 psi
+	0.78 ft of water
+
+Reading: 130.00
+Voltage: 0.64
+Using field equation: 0.60 psi
+	1.38 ft of water
+Using linear scaling: 0.34 psi
+	0.78 ft of water
+
+Reading: 130.00
+Voltage: 0.64
+Using field equation: 0.60 psi
+	1.38 ft of water
+Using linear scaling: 0.34 psi
+	0.78 ft of water
+
+Reading: 130.00
+Voltage: 0.64
+Using field equation: 0.60 psi
+	1.38 ft of water
+Using linear scaling: 0.34 psi
+	0.78 ft of water
+
+Elevation: 0? ft
+Reading: 111.00
+Voltage: 0.54
+Using field equation: 0.37 psi
+	0.84 ft of water
+Using linear scaling: 0.11 psi
+	0.25 ft of water
+
+Reading: 111.00
+Voltage: 0.54
+Using field equation: 0.37 psi
+	0.84 ft of water
+Using linear scaling: 0.11 psi
+	0.25 ft of water
+
+Reading: 111.00
+Voltage: 0.54
+Using field equation: 0.37 psi
+	0.84 ft of water
+Using linear scaling: 0.11 psi
+	0.25 ft of water
+
+Reading: 111.00
+Voltage: 0.54
+Using field equation: 0.37 psi
+	0.84 ft of water
+Using linear scaling: 0.11 psi
+	0.25 ft of water
+
+Reading: 111.00
+Voltage: 0.54
+Using field equation: 0.37 psi
+	0.84 ft of water
+Using linear scaling: 0.11 psi
+	0.25 ft of water
+
+Elevation: 0? ft
+Reading: 111.00
+Voltage: 0.54
+Using field equation: 0.37 psi
+	0.84 ft of water
+Using linear scaling: 0.11 psi
+	0.25 ft of water
+
+Reading: 111.00
+Voltage: 0.54
+Using field equation: 0.37 psi
+	0.84 ft of water
+Using linear scaling: 0.11 psi
+	0.25 ft of water
+
+Reading: 111.00
+Voltage: 0.54
+Using field equation: 0.37 psi
+	0.84 ft of water
+Using linear scaling: 0.11 psi
+	0.25 ft of water
+
+Reading: 111.00
+Voltage: 0.54
+Using field equation: 0.37 psi
+	0.84 ft of water
+Using linear scaling: 0.11 psi
+	0.25 ft of water
+
+Reading: 111.00
+Voltage: 0.54
+Using field equation: 0.37 psi
+	0.84 ft of water
+Using linear scaling: 0.11 psi
+	0.25 ft of water
+
