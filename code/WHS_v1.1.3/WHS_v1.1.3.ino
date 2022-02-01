@@ -228,12 +228,11 @@ void loop() {
     Serial.println(F("Failed to get GPS location, retrying..."));
     delay(2000); // Retry every 2s
     gps_fails++;
-    if(gps_fails == 4) {
+  }
+  if(gps_fails == 5) {
       Serial.println("Giving up on GPS");
     }
-  }
   if(gps_fails < 5) {
-//    fona.getGPS(&latitude, &longitude, &speed_kph, &heading, &altitude);
     digitalWrite(whiteLed, LOW);
     Serial.println(F("Found 'eeeeem!"));
     Serial.println(F("---------------------"));
