@@ -1,0 +1,4 @@
+- The offset tends to change, but the slope remains relativley constant at 0.027
+- one way to address this is to not let the sensor get dry
+- if we put the sensor in water and set the initial elevation, then we only have to care about the change 
+   in water depth, i.e. the slope
