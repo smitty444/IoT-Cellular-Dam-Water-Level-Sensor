@@ -9,16 +9,40 @@
  * Written by Corinne Smith Jan 2021
  */
 
+#include <SPI.h>
+#include <SD.h>
+#include <Wire.h>
+#include <DS3232RTC.h>
+
 //const int pressurePin = A10; 
 #define pressurePin A10
+#define pinCS 53
+#define LED 13
+#define dataLED 4
 
 void setup() {
   Serial.begin(9600);
   Serial.println("Executing pressure_tester.ino");
-  //pinMode(pressurePin, INPUT);
+  pinMode(pinCS, OUTPUT);
+  
+  pinMode(LED, OUTPUT);
+  digitalWrite(LED, LOW);
+  
+  pinMode(dataLED, OUTPUT);
+  digitalWrite(dataLED, LOW);
+
+  if(! SD.begin(pinCS)) {
+    Serial.println("cannot find SD");
+    while(1);
+  }
+
+  RTC.begin();
 }
 
 void loop() {
+  digitalWrite(dataLED, HIGH);
+
+  time_t t = RTC.get();
   // get the raw 10 bit analog reading
   float reading = analogRead(pressurePin);
   Serial.print("Reading: "); Serial.println(reading);
@@ -38,7 +62,43 @@ void loop() {
   Serial.print("Using linear scaling: "); Serial.print(pressure_2); Serial.println(" psi");
   float feet_2 = voltage*5.7724 - 2.8862;
   Serial.print("\t"); Serial.print(feet_2); Serial.println(" ft of water");
-  
+
+  // using feb 1 experimental data
+  float feet_3 = reading*0.027 - 3.0065;
+  Serial.print("Using feb 1 experimental data: "); Serial.print(feet_3); Serial.println(" ft of water");
+
+  File file = SD.open("002.csv", FILE_WRITE);
+  if(file) {
+    // write the time stamp
+    file.print(String(month(t)));
+    file.print("/");
+    file.print(String(day(t)));
+    file.print("/");
+    file.print(String(year(t)));
+    file.print(" ");
+    file.print(String(hour(t)));
+    file.print(":");
+    file.print(String(minute(t)));
+    file.print(":");
+    file.print(String(second(t)));
+    file.print(" ");
+
+    // write the data
+    file.print(reading); file.print(" ");
+    file.print(voltage); file.print(" ");
+    file.print(pressure_1); file.print(" ");
+    file.print(feet_1); file.print(" ");
+    file.print(pressure_2); file.print(" ");
+    file.print(feet_2); file.print(" ");
+    file.print(feet_3); file.print(" "); 
+    file.println("");
+    file.close();
+  }
+  else {
+    Serial.print("Error opening file");
+    digitalWrite(LED, HIGH);
+  }
   Serial.println();
+  digitalWrite(dataLED, LOW);
   delay(2000);
 }
