@@ -23,7 +23,7 @@
  *    SCK - 13, 52 
  *    MISO - 12, 50 
  *    MOSI - 11, 51
- *    SS - general GPIO
+ *    SS - general GPIO (53 here) 
  */
 
 #define SIMCOM_7000                   // cellular MCU we are using
