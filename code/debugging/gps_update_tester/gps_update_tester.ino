@@ -1,10 +1,10 @@
 /*
- *   This sketch uses a SIM7000A fona shield on an Arduino Mega to send water level, pressure, location, and temperature
- *   data to an Adafruit IO dashboard. The sampling rate, initial sea level, and deployment are controlled from the 
- *   dashboard. MQTT protocol is used.
- *   
- *   Written by Corinne Smith Jan 2022
- *   Adapted from: botletics, Adafruit
+     This sketch uses a SIM7000A fona shield on an Arduino Mega to send water level, pressure, location, and temperature
+     data to an Adafruit IO dashboard. The sampling rate, initial sea level, and deployment are controlled from the
+     dashboard. MQTT protocol is used.
+
+     Written by Corinne Smith Jan 2022
+     Adapted from: botletics, Adafruit
 */
 
 #include "Adafruit_FONA.h"            // from botletics: https://github.com/botletics/SIM7000-LTE-Shield/tree/master/Code
@@ -22,8 +22,12 @@
 #define FONA_TX 10
 #define FONA_RX 11
 
-#define LED 13
-int sampling_rate = 15;                // initialize the delay between loops. This can be changed with subscribe
+// indicator LEDs
+#define greenLed 3                     // MQTT connected
+#define blueLed 2                      // network connected
+#define whiteLed 15                    // GPS error
+
+#define sampling_rate 15
 
 // send AT commands via fona's software serial
 #include <SoftwareSerial.h>
@@ -42,26 +46,30 @@ Adafruit_FONA_LTE fona = Adafruit_FONA_LTE();
 // pass in fona class and server details to mqtt class
 Adafruit_MQTT_FONA mqtt(&fona, AIO_SERVER, AIO_SERVERPORT, AIO_USERNAME, AIO_KEY);
 
-// THE PUBLISHING FEEDS ------------------------------------------------------------------------------
-
+// THE FEEDS ------------------------------------------------------------------------------
+Adafruit_MQTT_Publish feed_location = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/feeds/location/csv");
 Adafruit_MQTT_Publish feed_update_gps_pub = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/feeds/update-gps");
-
 Adafruit_MQTT_Subscribe feed_update_gps_sub = Adafruit_MQTT_Subscribe(&mqtt, AIO_USERNAME "/feeds/update-gps");
 
 
 // some global variables
 uint8_t readline(char *buff, uint8_t maxbuff, uint16_t timeout = 0);
 char imei[16] = {0};
-bool new_time = false;
+bool new_loc = false;
 
 
 void setup() {
   Serial.begin(9600);
-  Serial.println(F("*** Executing WHS_v1.1.2.ino ***"));
+  Serial.println(F("*** Executing gps_update_tester.ino ***"));
 
   // configure the led
-  pinMode(LED, OUTPUT);
-  digitalWrite(LED, LOW);
+  pinMode(greenLed, OUTPUT);
+  digitalWrite(greenLed, LOW);
+  pinMode(blueLed, OUTPUT);
+  digitalWrite(blueLed, LOW);
+  pinMode(whiteLed, OUTPUT);
+  digitalWrite(whiteLed, LOW);
+
 
   pinMode(FONA_RST, OUTPUT);
   digitalWrite(FONA_RST, HIGH);             // reset is default high
@@ -102,10 +110,12 @@ void setup() {
 void loop() {
   // connect to cell network
   while (!netStatus()) {
+    digitalWrite(blueLed, LOW);
     Serial.println(F("Failed to connect to cell network, retrying..."));
     delay(2000); // Retry every 2s
   }
   Serial.println(F("Connected to cell network!"));
+  digitalWrite(blueLed, HIGH);
   readRSSI();
 
 
@@ -121,27 +131,58 @@ void loop() {
       Serial.print(F("*** Got: "));
       Serial.println((char *)feed_update_gps_sub.lastread);
       delay(100);
-      new_time = true;
     }
   }
- 
-  // reassign the sampling rate
-  char updateBuff[4];
+
+  // initialize gps variables
+  char updateBuff[3];
+  float latitude, longitude, speed_kph, heading, altitude;
+  char latBuff[12], longBuff[12], locBuff[50], speedBuff[12], headBuff[12], altBuff[12];
+  int gps_fails = 0;
+
+  // if we got ON, then find the location
   if (strcmp(feed_update_gps_sub.lastread, "ON") == 0) {
-      for(int i=0; i<5; i++) {
-      digitalWrite(LED, HIGH);
-      delay(300);
-      digitalWrite(LED, LOW);
-      delay(300);
+    
+    // take gps data
+    while (!fona.getGPS(&latitude, &longitude, &speed_kph, &heading, &altitude) && gps_fails < 5) {     // go into Adafruit_FONA.h and uncomment //#define MQTT_DEBUG on line 37 for this to work (https://github.com/adafruit/Adafruit_MQTT_Library/issues/54)
+      digitalWrite(whiteLed, HIGH);
+      Serial.println(F("Failed to get GPS location, retrying..."));
+      delay(2000); // Retry every 2s
+      gps_fails++;
     }
+    if (gps_fails == 5) {
+      Serial.println("Giving up on GPS");
+    }
+    if (gps_fails < 5) {
+      digitalWrite(whiteLed, LOW);
+      Serial.println(F("Found 'eeeeem!"));
+      Serial.println(F("---------------------"));
+      Serial.print(F("Latitude: ")); Serial.println(latitude, 6);
+      Serial.print(F("Longitude: ")); Serial.println(longitude, 6);
+      Serial.print(F("Speed: ")); Serial.println(speed_kph);
+      Serial.print(F("Heading: ")); Serial.println(heading);
+      Serial.print(F("Altitude: ")); Serial.println(altitude);
+
+      dtostrf(latitude, 1, 6, latBuff); // float_val, min_width, digits_after_decimal, char_buffer
+      dtostrf(longitude, 1, 6, longBuff);
+      dtostrf(speed_kph, 1, 0, speedBuff);
+      dtostrf(heading, 1, 0, headBuff);
+      dtostrf(altitude, 1, 1, altBuff);
+
+      sprintf(locBuff, "%s,%s,%s,%s", speedBuff, latBuff, longBuff, altBuff);
+      new_loc = true;
+    }
+    gps_fails = 0;
     updateBuff[0] = "OFF";
+    MQTT_publish_checkSuccess(feed_update_gps_pub, updateBuff);
   }
 
-
+  // if we got a new location, publish it to Adafruit IO
+  if(new_loc == true) {
+    MQTT_publish_checkSuccess(feed_location, locBuff);
+  }
   
-  MQTT_publish_checkSuccess(feed_update_gps_pub, updateBuff);
-  
-  // Delay until next post
+  // delay until next post
   Serial.print(F("Waiting for ")); Serial.print(sampling_rate); Serial.println(F(" seconds\r\n"));
   delay(sampling_rate * 1000UL); // Delay
 }
@@ -215,18 +256,21 @@ void MQTT_connect() {
 
   // Stop if already connected.
   if (mqtt.connected()) {
+    digitalWrite(greenLed, HIGH);
     return;
   }
 
   Serial.println("Connecting to MQTT... ");
 
   while ((ret = mqtt.connect()) != 0) { // connect will return 0 for connected
+    digitalWrite(greenLed, LOW);
     Serial.println(mqtt.connectErrorString(ret));
     Serial.println("Retrying MQTT connection in 5 seconds...");
     mqtt.disconnect();
     delay(5000);  // wait 5 seconds
   }
   Serial.println("MQTT Connected!");
+  digitalWrite(greenLed, HIGH);
 }
 
 void MQTT_publish_checkSuccess(Adafruit_MQTT_Publish &feed, const char *feedContent) {

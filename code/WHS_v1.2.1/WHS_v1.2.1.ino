@@ -23,7 +23,7 @@
  *    SCK - 13, 52 
  *    MISO - 12, 50 
  *    MOSI - 11, 51
- *    SS - general GPIO
+ *    SS - general GPIO (53 here) 
  */
 
 #define SIMCOM_7000                   // cellular MCU we are using
@@ -66,11 +66,13 @@ Adafruit_MQTT_Publish feed_temp = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/fe
 Adafruit_MQTT_Publish feed_pressure = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/feeds/pressure");
 Adafruit_MQTT_Publish feed_stage = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/feeds/stage");
 Adafruit_MQTT_Publish feed_pts = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/feeds/pressure-to-stage");
+Adafruit_MQTT_Publish feed_update_gps_pub = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/feeds/update-gps");
 
 // THE SUBSCRIBING FEEDS -----------------------------------------------------------------------------
 Adafruit_MQTT_Subscribe feed_deploy = Adafruit_MQTT_Subscribe(&mqtt, AIO_USERNAME "/feeds/deploy");
 Adafruit_MQTT_Subscribe feed_sampling_rate = Adafruit_MQTT_Subscribe(&mqtt, AIO_USERNAME "/feeds/sampling-rate");
 Adafruit_MQTT_Subscribe feed_sea_level = Adafruit_MQTT_Subscribe(&mqtt, AIO_USERNAME "/feeds/initial-sea-level");
+Adafruit_MQTT_Subscribe feed_update_gps_sub = Adafruit_MQTT_Subscribe(&mqtt, AIO_USERNAME "/feeds/update-gps");
 
 // define the SS for SD card
 #define chipSelect 53 
@@ -91,6 +93,7 @@ uint8_t readline(char *buff, uint8_t maxbuff, uint16_t timeout = 0);
 char imei[16] = {0};
 bool deployed = false;
 bool new_time = false;
+bool new_loc = true;
 float initial_distance = 0;
 float initial_feet_of_water = 0;
 float sea_level = 0;
@@ -98,7 +101,7 @@ float sea_level = 0;
 
 void setup() {
   Serial.begin(9600);
-  Serial.println(F("*** Executing WHS_v1.2.1.ino ***"));
+  Serial.println(F("*** Executing WHS_v1.2.ino ***"));
 
   // configure the led
   pinMode(redLed, OUTPUT);
@@ -163,6 +166,7 @@ void setup() {
   mqtt.subscribe(&feed_deploy);
   mqtt.subscribe(&feed_sampling_rate);
   mqtt.subscribe(&feed_sea_level);
+  mqtt.subscribe(&feed_update_gps_sub);
 
   // begin the BMP280
   bmp.begin(0x76);      // bmp.begin(I2C_address)
@@ -190,7 +194,7 @@ void setup() {
     Adafruit_MQTT_Subscribe *subscription;
     while ((subscription = mqtt.readSubscription(5000))) {
       if (subscription == &feed_deploy) {
-        Serial.print(F("***Received: ")); Serial.println((char *)feed_deploy.lastread);
+        Serial.print(F("*** Package: ")); Serial.println((char *)feed_deploy.lastread);
         if (strcmp(feed_deploy.lastread, "ON") == 0) {
           Serial.println(F("***Package is deployed"));
           deployed = true;
@@ -201,29 +205,35 @@ void setup() {
         }
       }
       if (subscription == &feed_sea_level) {
-        Serial.print(F("*** Got: "));
+        Serial.print(F("*** Elevation: "));
         Serial.println((char *)feed_sea_level.lastread);
         delay(100);
         sea_level = atoi((char *)feed_sea_level.lastread);
       }
       if (subscription == &feed_sampling_rate) {
-        Serial.print(F("*** Got: "));
+        Serial.print(F("*** Sampling rate: "));
         Serial.println((char *)feed_sampling_rate.lastread);
         delay(100);
         new_time = true;
+      }
+      if (subscription == &feed_update_gps_sub) {
+        Serial.print(F("*** GPS: "));
+        Serial.println((char *)feed_update_gps_sub.lastread);
+        delay(100);
+        new_loc = true;
       }
     }
     delay(3000);
   }
 
   // find the initial distance that will correspond to sea level
-//  while (initial_distance <= 0) {
-//    initial_distance = sonar.ping_in();
-//    delay(50);
-//  }
-//  initial_distance = initial_distance / 12;
-//  Serial.print("initial distance: "); Serial.print(initial_distance); Serial.println(" ft");
-//  delay(50);
+  while (initial_distance <= 0) {
+    initial_distance = sonar.ping_in();
+    delay(50);
+  }
+  initial_distance = initial_distance / 12;
+  Serial.print("initial distance: "); Serial.print(initial_distance); Serial.println(" ft");
+  delay(50);
 
   // find the initial pressure reading that will correspond to sea level
   float voltage = analogRead(pressurePin);      // convert 10 bit analog reading to voltage
@@ -246,40 +256,6 @@ void loop() {
 
   digitalWrite(yellowLed, HIGH);
 
-  // take gps data
-//  float latitude, longitude, speed_kph, heading, altitude;
-//  char latBuff[12], longBuff[12], locBuff[50], speedBuff[12], headBuff[12], altBuff[12];
-//  int gps_fails = 0;
-//
-//  while (!fona.getGPS(&latitude, &longitude, &speed_kph, &heading, &altitude) && gps_fails < 5) {     // go into Adafruit_FONA.h and uncomment //#define MQTT_DEBUG on line 37 for this to work (https://github.com/adafruit/Adafruit_MQTT_Library/issues/54)
-//    digitalWrite(whiteLed, HIGH);
-//    Serial.println(F("Failed to get GPS location, retrying..."));
-//    delay(2000); // Retry every 2s
-//    gps_fails++;
-//  }
-//  if(gps_fails == 5) {
-//      Serial.println("Giving up on GPS");
-//    }
-//  if(gps_fails < 5) {
-//    digitalWrite(whiteLed, LOW);
-//    Serial.println(F("Found 'eeeeem!"));
-//    Serial.println(F("---------------------"));
-//    Serial.print(F("Latitude: ")); Serial.println(latitude, 6);
-//    Serial.print(F("Longitude: ")); Serial.println(longitude, 6);
-//    Serial.print(F("Speed: ")); Serial.println(speed_kph);
-//    Serial.print(F("Heading: ")); Serial.println(heading);
-//    Serial.print(F("Altitude: ")); Serial.println(altitude);
-//  
-//     dtostrf(latitude, 1, 6, latBuff); // float_val, min_width, digits_after_decimal, char_buffer
-//    dtostrf(longitude, 1, 6, longBuff);
-//    dtostrf(speed_kph, 1, 0, speedBuff);
-//    dtostrf(heading, 1, 0, headBuff);
-//    dtostrf(altitude, 1, 1, altBuff);
-//  
-//    sprintf(locBuff, "%s,%s,%s,%s", speedBuff, latBuff, longBuff, altBuff);
-//  }
-//  gps_fails = 0;
-
   // find the time at which we are logging all this data
   time_t t = RTC.get();
 
@@ -292,55 +268,67 @@ void loop() {
 
   dtostrf(celsius, 1, 2, tempBuff);
 
-//  // take ambient pressure data
-//  float pressure = bmp.readPressure();
-//  Serial.print(F("Pressure = "));
-//  Serial.print(pressure);
-//  Serial.println(" Pa");
-//  char pressBuff[10];
-//  dtostrf(pressure, 1, 2, pressBuff);
-//
-//  // take stage data
-//  float distance = 0;
-//  while (distance <= 0) {
-//    distance = sonar.ping_in();
-//    delay(50);
-//  }
-//  distance = distance / 12;
-//  Serial.print("Ultrasonic distance: "); Serial.print(distance); Serial.println(" ft");
-//  distance = sea_level + (initial_distance - distance);
-//  Serial.print("\tabove sea level: "); Serial.print(distance); Serial.println(" ft");
-//  char stageBuff[7];
-//  dtostrf(distance, 1, 2, stageBuff);
+  // take ambient pressure data
+  float pressure = bmp.readPressure();
+  Serial.print(F("Pressure = "));
+  Serial.print(pressure);
+  Serial.println(" Pa");
+  char pressBuff[10];
+  dtostrf(pressure, 1, 2, pressBuff);
+
+  // take stage data
+  float distance = 0;
+  while (distance <= 0) {
+    distance = sonar.ping_in();
+    delay(50);
+  }
+  distance = distance / 12;
+  Serial.print("Ultrasonic distance: "); Serial.print(distance); Serial.println(" ft");
+  distance = sea_level + (initial_distance - distance);
+  Serial.print("\tabove sea level: "); Serial.print(distance); Serial.println(" ft");
+  char stageBuff[7];
+  dtostrf(distance, 1, 2, stageBuff);
 
   // take stage pressure data
-   float reading = analogRead(pressurePin);
-  Serial.print("Reading: "); Serial.println(reading);
-
-  // convert analog reading to a voltage
-  float voltage = reading/1023*5;
-  Serial.print("Voltage: "); Serial.println(voltage);
-  
-  // using the field test equation:
-  float pressure_1 = voltage*2.5046 - 0.9938;
-  Serial.print("Using field equation: "); Serial.print(pressure_1); Serial.println(" psi");
-  float feet_1 = voltage*5.7831 - 2.2947;
-  Serial.print("\t"); Serial.print(feet_1); Serial.println(" ft of water");
-
-  // using linear scaling
-  float pressure_2 = 2.5*voltage - 1.25;
-  Serial.print("Using linear scaling: "); Serial.print(pressure_2); Serial.println(" psi");
-  float feet_2 = voltage*5.7724 - 2.8862;
-  Serial.print("\t"); Serial.print(feet_2); Serial.println(" ft of water");
-
-  float feet_of_water = sea_level + (feet_of_water - initial_feet_of_water);
-  char(ptsBuff[7]);
+  float voltage = analogRead(pressurePin);                                                     // convert 10 bit analog reading to voltage
+  voltage = voltage*5/1023;
+  float feet_of_water = voltage*5.7724 - 2.8862;                                               // 0.5-4.5V maps to 0-23.1 feet of water
+  Serial.print("Feet above sensor: "); Serial.print(feet_of_water); Serial.println(" ft");
+  feet_of_water = sea_level + (feet_of_water - initial_feet_of_water);
+  Serial.print("\tabove sea level: "); Serial.print(feet_of_water); Serial.println(" ft");
+  char ptsBuff[7];
   dtostrf(feet_of_water, 1, 2, ptsBuff);
 
   Serial.println(F("---------------------"));
-  
+
+  // connect to MQTT
+  MQTT_connect();
+
+  // This is our 'wait for incoming subscription packets' busy subloop
+  Adafruit_MQTT_Subscribe *subscription;
+  while ((subscription = mqtt.readSubscription(5000))) {
+    // this checks if the time was changed
+    if (subscription == &feed_sampling_rate) {
+      Serial.print(F("*** Got: "));
+      Serial.println((char *)feed_sampling_rate.lastread);
+      delay(100);
+      new_time = true;
+    }
+    // this checks if we need to get the gps location
+    if (subscription == &feed_update_gps_sub) {
+        Serial.print(F("*** GPS: "));
+        Serial.println((char *)feed_update_gps_sub.lastread);
+        delay(100);
+        new_loc = true;
+    }
+    // this checks if the deployment switch is ever turned off
+    if (subscription == &feed_deploy) {
+      Serial.print(F("***Deployed: ")); Serial.print((char *)feed_deploy.lastread);
+    }
+  }
+
   // save to SD card
-  File file = SD.open("002.csv", FILE_WRITE);
+  File file = SD.open("001.csv", FILE_WRITE);
   if(file) {
     
     // write the time stamp
@@ -359,48 +347,67 @@ void loop() {
 
     // write the data
     file.print(celsius); file.print(" ");
-    file.print(reading); file.print(" ");
-    file.print(voltage); file.print(" ");
-    file.print(pressure_1); file.print(" ");
-    file.print(feet_1); file.print(" ");
-    file.print(pressure_2); file.print(" ");
-    file.print(feet_2); file.print(" ");
+    file.print(pressure); file.print(" ");
+    file.print(distance); file.print(" ");
+    file.print(feet_of_water); file.print(" ");
     file.println("");
     file.close();
   }
   else {
     Serial.println(F("Unable to open file"));
-    digitalWrite(whiteLed, HIGH);
-    while(1);
   }
 
-  // connect to MQTT
-  MQTT_connect();
+  // initialize gps variables
+  char updateBuff[3];
+  float latitude, longitude, speed_kph, heading, altitude;
+  char latBuff[12], longBuff[12], locBuff[50], speedBuff[12], headBuff[12], altBuff[12];
+  int gps_fails = 0;
 
-  // This is our 'wait for incoming subscription packets' busy subloop
-  Adafruit_MQTT_Subscribe *subscription;
-  while ((subscription = mqtt.readSubscription(5000))) {
-    // this checks if the time was changed
-    if (subscription == &feed_sampling_rate) {
-      Serial.print(F("*** Got: "));
-      Serial.println((char *)feed_sampling_rate.lastread);
-      delay(100);
-      new_time = true;
+  // if we got ON, then find the location
+  if (strcmp(feed_update_gps_sub.lastread, "ON") == 0) {
+    
+    // take gps data
+    while (!fona.getGPS(&latitude, &longitude, &speed_kph, &heading, &altitude) && gps_fails < 5) {     // go into Adafruit_FONA.h and uncomment //#define MQTT_DEBUG on line 37 for this to work (https://github.com/adafruit/Adafruit_MQTT_Library/issues/54)
+      digitalWrite(whiteLed, HIGH);
+      Serial.println(F("Failed to get GPS location, retrying..."));
+      delay(2000); // Retry every 2s
+      gps_fails++;
     }
-    // this checks if the deployment switch is ever turned off
-    if (subscription == &feed_deploy) {
-      Serial.print(F("***Deployed: ")); Serial.print((char *)feed_deploy.lastread);
+    if (gps_fails == 5) {
+      Serial.println("Giving up on GPS");
     }
+    if (gps_fails < 5) {
+      digitalWrite(whiteLed, LOW);
+      Serial.println(F("Found 'eeeeem!"));
+      Serial.println(F("---------------------"));
+      Serial.print(F("Latitude: ")); Serial.println(latitude, 6);
+      Serial.print(F("Longitude: ")); Serial.println(longitude, 6);
+      Serial.print(F("Speed: ")); Serial.println(speed_kph);
+      Serial.print(F("Heading: ")); Serial.println(heading);
+      Serial.print(F("Altitude: ")); Serial.println(altitude);
+
+      dtostrf(latitude, 1, 6, latBuff); // float_val, min_width, digits_after_decimal, char_buffer
+      dtostrf(longitude, 1, 6, longBuff);
+      dtostrf(speed_kph, 1, 0, speedBuff);
+      dtostrf(heading, 1, 0, headBuff);
+      dtostrf(altitude, 1, 1, altBuff);
+
+      sprintf(locBuff, "%s,%s,%s,%s", speedBuff, latBuff, longBuff, altBuff);
+      new_loc = true;
+    }
+    gps_fails = 0;
+    updateBuff[0] = "OFF";
+    MQTT_publish_checkSuccess(feed_update_gps_pub, updateBuff);
   }
-
-  
 
   // publish data to Adafruit IO
-//  MQTT_publish_checkSuccess(feed_location, locBuff);
-//  MQTT_publish_checkSuccess(feed_stage, stageBuff);
-  MQTT_publish_checkSuccess(feed_temp, tempBuff);
-//  MQTT_publish_checkSuccess(feed_pressure, pressBuff);
-  MQTT_publish_checkSuccess(feed_pts, ptsBuff);
+  if(new_loc == true) {
+    MQTT_publish_checkSuccess(feed_location, locBuff);
+  }
+    MQTT_publish_checkSuccess(feed_stage, stageBuff);
+    MQTT_publish_checkSuccess(feed_temp, tempBuff);
+    MQTT_publish_checkSuccess(feed_pressure, pressBuff);
+    MQTT_publish_checkSuccess(feed_pts, ptsBuff);
 
   // reassign the sampling rate
   if (new_time == true) {
