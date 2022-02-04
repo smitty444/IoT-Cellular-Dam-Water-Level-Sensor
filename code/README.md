@@ -37,5 +37,11 @@ is toggled
 - Subscribing feeds: deployment toggle, sampling rate, initial elevation
 - classic datalogger setup with clock and SD card for back up saving
 
+## WHS_v1.2.1
+- created by Corinne
+- Publishing feeds: location, ultrasonic stage, pressure stage, temperature, ambient pressure, update gps
+- Subscribing feeds: deployment toggle, sampling rate, initial elevation, update gps
+- gps toggle button that allows you to manually decide when to update the gps to save power
+
 ## debugging
 - folder contains small sketches for troubleshooting sensors, logic flows, etc
