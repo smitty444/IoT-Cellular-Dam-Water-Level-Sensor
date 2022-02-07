@@ -93,7 +93,7 @@ uint8_t readline(char *buff, uint8_t maxbuff, uint16_t timeout = 0);
 char imei[16] = {0};
 bool deployed = false;
 bool new_time = false;
-bool new_loc = true;
+bool new_loc = false;
 float initial_distance = 0;
 float initial_feet_of_water = 0;
 float sea_level = 0;
@@ -101,7 +101,7 @@ float sea_level = 0;
 
 void setup() {
   Serial.begin(9600);
-  Serial.println(F("*** Executing WHS_v1.2.ino ***"));
+  Serial.println(F("*** Executing WHS_v1.2.1.ino ***"));
 
   // configure the led
   pinMode(redLed, OUTPUT);
@@ -220,7 +220,7 @@ void setup() {
         Serial.print(F("*** GPS: "));
         Serial.println((char *)feed_update_gps_sub.lastread);
         delay(100);
-        new_loc = true;
+        //new_loc = true;
       }
     }
     delay(3000);
@@ -319,7 +319,7 @@ void loop() {
         Serial.print(F("*** GPS: "));
         Serial.println((char *)feed_update_gps_sub.lastread);
         delay(100);
-        new_loc = true;
+        //new_loc = true;
     }
     // this checks if the deployment switch is ever turned off
     if (subscription == &feed_deploy) {
@@ -403,6 +403,7 @@ void loop() {
   // publish data to Adafruit IO
   if(new_loc == true) {
     MQTT_publish_checkSuccess(feed_location, locBuff);
+    new_loc = false;
   }
     MQTT_publish_checkSuccess(feed_stage, stageBuff);
     MQTT_publish_checkSuccess(feed_temp, tempBuff);
