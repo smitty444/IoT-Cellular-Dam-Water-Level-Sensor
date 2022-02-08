@@ -101,7 +101,7 @@ float sea_level = 0;
 
 void setup() {
   Serial.begin(9600);
-  Serial.println(F("*** Executing WHS_v1.2.1.ino ***"));
+  Serial.println(F("*** Executing WHS_v1.1.5.ino ***"));
 
   // configure the led
   pinMode(redLed, OUTPUT);

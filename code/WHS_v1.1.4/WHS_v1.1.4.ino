@@ -11,6 +11,10 @@
 #include "Adafruit_MQTT.h"            // from adafruit:  https://github.com/adafruit/Adafruit_MQTT_Library
 #include "Adafruit_MQTT_FONA.h"
 
+#include <Adafruit_BMP280.h>          // BMP280 SENSOR LIBRARY
+#include <NewPing.h>                  // JSN-SR04 LIBRARY
+#include <SD.h>                       // SD CARD LIBRARY
+#include <SPI.h>                      // SERIAL PERIPHERAL INTERFACE LIBRARY
 #include <DS3232RTC.h>                // RTC LIBRARY https://github.com/JChristensen/DS3232RTC
 #include <Wire.h>                     // I2C COMMUNICATION LIBRARY
 
@@ -62,13 +66,11 @@ Adafruit_MQTT_Publish feed_temp = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/fe
 Adafruit_MQTT_Publish feed_pressure = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/feeds/pressure");
 Adafruit_MQTT_Publish feed_stage = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/feeds/stage");
 Adafruit_MQTT_Publish feed_pts = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/feeds/pressure-to-stage");
-Adafruit_MQTT_Publish feed_update_gps_pub = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/feeds/update-gps");
 
 // THE SUBSCRIBING FEEDS -----------------------------------------------------------------------------
 Adafruit_MQTT_Subscribe feed_deploy = Adafruit_MQTT_Subscribe(&mqtt, AIO_USERNAME "/feeds/deploy");
 Adafruit_MQTT_Subscribe feed_sampling_rate = Adafruit_MQTT_Subscribe(&mqtt, AIO_USERNAME "/feeds/sampling-rate");
 Adafruit_MQTT_Subscribe feed_sea_level = Adafruit_MQTT_Subscribe(&mqtt, AIO_USERNAME "/feeds/initial-sea-level");
-Adafruit_MQTT_Subscribe feed_update_gps_sub = Adafruit_MQTT_Subscribe(&mqtt, AIO_USERNAME "/feeds/update-gps");
 
 // define the SS for SD card
 #define chipSelect 53 
@@ -89,7 +91,6 @@ uint8_t readline(char *buff, uint8_t maxbuff, uint16_t timeout = 0);
 char imei[16] = {0};
 bool deployed = false;
 bool new_time = false;
-bool new_loc = false;
 float initial_distance = 0;
 float initial_feet_of_water = 0;
 float sea_level = 0;
@@ -97,7 +98,7 @@ float sea_level = 0;
 
 void setup() {
   Serial.begin(9600);
-  Serial.println(F("*** Executing WHS_v1.2.1.ino ***"));
+  Serial.println(F("*** Executing WHS_v1.1.4.ino ***"));
 
   // configure the led
   pinMode(redLed, OUTPUT);
@@ -124,18 +125,8 @@ void setup() {
     while(1);
   }
 
-  // begin the RTC 
+  // begin the RTC
   RTC.begin();
-
-  // initialize alarms and clear any past alarm flags or interrupts
-  RTC.setAlarm(ALM1_MATCH_DATE, 0, 0, 0, 1);
-  RTC.setAlarm(ALM2_MATCH_DATE, 0, 0, 0, 1);
-  RTC.alarm(ALARM_1);
-  RTC.alarm(ALARM_2);
-  RTC.alarmInterrupt(ALARM_1, false);
-  RTC.alarmInterrupt(ALARM_2, false);
-  RTC.squareWave(SQWAVE_NONE);
-  
 
   pinMode(FONA_RST, OUTPUT);
   digitalWrite(FONA_RST, HIGH);             // reset is default high
@@ -172,7 +163,6 @@ void setup() {
   mqtt.subscribe(&feed_deploy);
   mqtt.subscribe(&feed_sampling_rate);
   mqtt.subscribe(&feed_sea_level);
-  mqtt.subscribe(&feed_update_gps_sub);
 
   // begin the BMP280
   bmp.begin(0x76);      // bmp.begin(I2C_address)
@@ -200,7 +190,7 @@ void setup() {
     Adafruit_MQTT_Subscribe *subscription;
     while ((subscription = mqtt.readSubscription(5000))) {
       if (subscription == &feed_deploy) {
-        Serial.print(F("*** Package: ")); Serial.println((char *)feed_deploy.lastread);
+        Serial.print(F("***Received: ")); Serial.println((char *)feed_deploy.lastread);
         if (strcmp(feed_deploy.lastread, "ON") == 0) {
           Serial.println(F("***Package is deployed"));
           deployed = true;
@@ -211,22 +201,16 @@ void setup() {
         }
       }
       if (subscription == &feed_sea_level) {
-        Serial.print(F("*** Elevation: "));
+        Serial.print(F("*** Got: "));
         Serial.println((char *)feed_sea_level.lastread);
         delay(100);
         sea_level = atoi((char *)feed_sea_level.lastread);
       }
       if (subscription == &feed_sampling_rate) {
-        Serial.print(F("*** Sampling rate: "));
+        Serial.print(F("*** Got: "));
         Serial.println((char *)feed_sampling_rate.lastread);
         delay(100);
         new_time = true;
-      }
-      if (subscription == &feed_update_gps_sub) {
-        Serial.print(F("*** GPS: "));
-        Serial.println((char *)feed_update_gps_sub.lastread);
-        delay(100);
-        //new_loc = true;
       }
     }
     delay(3000);
@@ -261,6 +245,40 @@ void loop() {
   readRSSI();
 
   digitalWrite(yellowLed, HIGH);
+
+  // take gps data
+  float latitude, longitude, speed_kph, heading, altitude;
+  char latBuff[12], longBuff[12], locBuff[50], speedBuff[12], headBuff[12], altBuff[12];
+  int gps_fails = 0;
+
+  while (!fona.getGPS(&latitude, &longitude, &speed_kph, &heading, &altitude) && gps_fails < 5) {     // go into Adafruit_FONA.h and uncomment //#define MQTT_DEBUG on line 37 for this to work (https://github.com/adafruit/Adafruit_MQTT_Library/issues/54)
+    digitalWrite(whiteLed, HIGH);
+    Serial.println(F("Failed to get GPS location, retrying..."));
+    delay(2000); // Retry every 2s
+    gps_fails++;
+  }
+  if(gps_fails == 5) {
+      Serial.println("Giving up on GPS");
+    }
+  if(gps_fails < 5) {
+    digitalWrite(whiteLed, LOW);
+    Serial.println(F("Found 'eeeeem!"));
+    Serial.println(F("---------------------"));
+    Serial.print(F("Latitude: ")); Serial.println(latitude, 6);
+    Serial.print(F("Longitude: ")); Serial.println(longitude, 6);
+    Serial.print(F("Speed: ")); Serial.println(speed_kph);
+    Serial.print(F("Heading: ")); Serial.println(heading);
+    Serial.print(F("Altitude: ")); Serial.println(altitude);
+  
+     dtostrf(latitude, 1, 6, latBuff); // float_val, min_width, digits_after_decimal, char_buffer
+    dtostrf(longitude, 1, 6, longBuff);
+    dtostrf(speed_kph, 1, 0, speedBuff);
+    dtostrf(heading, 1, 0, headBuff);
+    dtostrf(altitude, 1, 1, altBuff);
+  
+    sprintf(locBuff, "%s,%s,%s,%s", speedBuff, latBuff, longBuff, altBuff);
+  }
+  gps_fails = 0;
 
   // find the time at which we are logging all this data
   time_t t = RTC.get();
@@ -320,13 +338,6 @@ void loop() {
       delay(100);
       new_time = true;
     }
-    // this checks if we need to get the gps location
-    if (subscription == &feed_update_gps_sub) {
-        Serial.print(F("*** GPS: "));
-        Serial.println((char *)feed_update_gps_sub.lastread);
-        delay(100);
-        //new_loc = true;
-    }
     // this checks if the deployment switch is ever turned off
     if (subscription == &feed_deploy) {
       Serial.print(F("***Deployed: ")); Serial.print((char *)feed_deploy.lastread);
@@ -363,58 +374,12 @@ void loop() {
     Serial.println(F("Unable to open file"));
   }
 
-  // initialize gps variables
-  char updateBuff[3];
-  float latitude, longitude, speed_kph, heading, altitude;
-  char latBuff[12], longBuff[12], locBuff[50], speedBuff[12], headBuff[12], altBuff[12];
-  int gps_fails = 0;
-
-  // if we got ON, then find the location
-  if (strcmp(feed_update_gps_sub.lastread, "ON") == 0) {
-    
-    // take gps data
-    while (!fona.getGPS(&latitude, &longitude, &speed_kph, &heading, &altitude) && gps_fails < 5) {     // go into Adafruit_FONA.h and uncomment //#define MQTT_DEBUG on line 37 for this to work (https://github.com/adafruit/Adafruit_MQTT_Library/issues/54)
-      digitalWrite(whiteLed, HIGH);
-      Serial.println(F("Failed to get GPS location, retrying..."));
-      delay(2000); // Retry every 2s
-      gps_fails++;
-    }
-    if (gps_fails == 5) {
-      Serial.println("Giving up on GPS");
-    }
-    if (gps_fails < 5) {
-      digitalWrite(whiteLed, LOW);
-      Serial.println(F("Found 'eeeeem!"));
-      Serial.println(F("---------------------"));
-      Serial.print(F("Latitude: ")); Serial.println(latitude, 6);
-      Serial.print(F("Longitude: ")); Serial.println(longitude, 6);
-      Serial.print(F("Speed: ")); Serial.println(speed_kph);
-      Serial.print(F("Heading: ")); Serial.println(heading);
-      Serial.print(F("Altitude: ")); Serial.println(altitude);
-
-      dtostrf(latitude, 1, 6, latBuff); // float_val, min_width, digits_after_decimal, char_buffer
-      dtostrf(longitude, 1, 6, longBuff);
-      dtostrf(speed_kph, 1, 0, speedBuff);
-      dtostrf(heading, 1, 0, headBuff);
-      dtostrf(altitude, 1, 1, altBuff);
-
-      sprintf(locBuff, "%s,%s,%s,%s", speedBuff, latBuff, longBuff, altBuff);
-      new_loc = true;
-    }
-    gps_fails = 0;
-    updateBuff[0] = "OFF";
-    MQTT_publish_checkSuccess(feed_update_gps_pub, updateBuff);
-  }
-
   // publish data to Adafruit IO
-  if(new_loc == true) {
-    MQTT_publish_checkSuccess(feed_location, locBuff);
-    new_loc = false;
-  }
-    MQTT_publish_checkSuccess(feed_stage, stageBuff);
-    MQTT_publish_checkSuccess(feed_temp, tempBuff);
-    MQTT_publish_checkSuccess(feed_pressure, pressBuff);
-    MQTT_publish_checkSuccess(feed_pts, ptsBuff);
+  MQTT_publish_checkSuccess(feed_location, locBuff);
+  MQTT_publish_checkSuccess(feed_stage, stageBuff);
+  MQTT_publish_checkSuccess(feed_temp, tempBuff);
+  MQTT_publish_checkSuccess(feed_pressure, pressBuff);
+  MQTT_publish_checkSuccess(feed_pts, ptsBuff);
 
   // reassign the sampling rate
   if (new_time == true) {
@@ -429,9 +394,6 @@ void loop() {
     Serial.println(F("Deployment turned off"));
     deployed = false;
   }
-
-  time_t t = RTC.get()
-  
 
   // Delay until next post
   Serial.print(F("Waiting for ")); Serial.print(sampling_rate); Serial.println(F(" seconds\r\n"));
