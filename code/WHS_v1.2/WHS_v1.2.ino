@@ -1,10 +1,10 @@
 /*
- *   This sketch uses a SIM7000A fona shield on an Arduino Mega to send water level, pressure, location, and temperature
- *   data to an Adafruit IO dashboard. The sampling rate, initial sea level, and deployment are controlled from the 
- *   dashboard. MQTT protocol is used.
- *   
- *   Written by Corinne Smith Jan 2022
- *   Adapted from: botletics, Adafruit
+     This sketch uses a SIM7000A fona shield on an Arduino Mega to send water level, pressure, location, and temperature
+     data to an Adafruit IO dashboard. The sampling rate, initial sea level, and deployment are controlled from the
+     dashboard. MQTT protocol is used.
+
+     Written by Corinne Smith Feb 2022
+     Adapted from: botletics, Adafruit
 */
 
 #include "Adafruit_FONA.h"            // from botletics: https://github.com/botletics/SIM7000-LTE-Shield/tree/master/Code
@@ -12,19 +12,20 @@
 #include "Adafruit_MQTT_FONA.h"
 
 #include <Adafruit_BMP280.h>          // BMP280 SENSOR LIBRARY
-#include <NewPing.h>                  // JSN-SR04 LIBRARY
+#include <NewPing.h>                  // JSN-SR04 LIBRARY https://bitbucket.org/teckel12/arduino-new-ping/wiki/Home 
 #include <SD.h>                       // SD CARD LIBRARY
 #include <SPI.h>                      // SERIAL PERIPHERAL INTERFACE LIBRARY
 #include <DS3232RTC.h>                // RTC LIBRARY https://github.com/JChristensen/DS3232RTC
 #include <Wire.h>                     // I2C COMMUNICATION LIBRARY
+#include <avr/sleep.h>                // SLEEP LIBRARY
 
 /*
- * SPI PINS FOR MEGA:
- *    SCK - 13, 52 
- *    MISO - 12, 50 
- *    MOSI - 11, 51
- *    SS - general GPIO (53 here) 
- */
+   SPI PINS FOR MEGA:
+      SCK - 13, 52
+      MISO - 12, 50
+      MOSI - 11, 51
+      SS - general GPIO (53 here)
+*/
 
 #define SIMCOM_7000                   // cellular MCU we are using
 
@@ -40,6 +41,7 @@
 #define greenLed 3                     // MQTT connected
 #define blueLed 2                      // network connected
 #define whiteLed 15                    // GPS error
+#define interrupt 5                    // interrupt pin for RTC (NOTE: 5 is INT5, the hardware interrupt that is on pin 18)
 
 int sampling_rate = 15;                // initialize the delay between loops. This can be changed with subscribe
 
@@ -66,14 +68,16 @@ Adafruit_MQTT_Publish feed_temp = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/fe
 Adafruit_MQTT_Publish feed_pressure = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/feeds/pressure");
 Adafruit_MQTT_Publish feed_stage = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/feeds/stage");
 Adafruit_MQTT_Publish feed_pts = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/feeds/pressure-to-stage");
+Adafruit_MQTT_Publish feed_update_gps_pub = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/feeds/update-gps");
 
 // THE SUBSCRIBING FEEDS -----------------------------------------------------------------------------
 Adafruit_MQTT_Subscribe feed_deploy = Adafruit_MQTT_Subscribe(&mqtt, AIO_USERNAME "/feeds/deploy");
 Adafruit_MQTT_Subscribe feed_sampling_rate = Adafruit_MQTT_Subscribe(&mqtt, AIO_USERNAME "/feeds/sampling-rate");
 Adafruit_MQTT_Subscribe feed_sea_level = Adafruit_MQTT_Subscribe(&mqtt, AIO_USERNAME "/feeds/initial-sea-level");
+Adafruit_MQTT_Subscribe feed_update_gps_sub = Adafruit_MQTT_Subscribe(&mqtt, AIO_USERNAME "/feeds/update-gps");
 
 // define the SS for SD card
-#define chipSelect 53 
+#define chipSelect 53
 
 // construct the BMP280
 Adafruit_BMP280 bmp;
@@ -91,6 +95,7 @@ uint8_t readline(char *buff, uint8_t maxbuff, uint16_t timeout = 0);
 char imei[16] = {0};
 bool deployed = false;
 bool new_time = false;
+bool new_loc = false;
 float initial_distance = 0;
 float initial_feet_of_water = 0;
 float sea_level = 0;
@@ -119,14 +124,27 @@ void setup() {
   // configure the SD SS pin
   pinMode(chipSelect, OUTPUT);
 
+  // configure the RTC interrupt
+  pinMode(interrupt, INPUT_PULLUP);
+
   // check if SD card began
-  if(!SD.begin(chipSelect)) {
+  if (!SD.begin(chipSelect)) {
     Serial.println("SD card not found");
-    while(1);
+    while (1);
   }
 
   // begin the RTC
   RTC.begin();
+
+  // initialize alarms and clear any past alarm flags or interrupts
+  RTC.setAlarm(ALM1_MATCH_DATE, 0, 0, 0, 1);
+  RTC.setAlarm(ALM2_MATCH_DATE, 0, 0, 0, 1);
+  RTC.alarm(ALARM_1);
+  RTC.alarm(ALARM_2);
+  RTC.alarmInterrupt(ALARM_1, true);
+  RTC.alarmInterrupt(ALARM_2, false);
+  RTC.squareWave(SQWAVE_NONE);
+
 
   pinMode(FONA_RST, OUTPUT);
   digitalWrite(FONA_RST, HIGH);             // reset is default high
@@ -140,13 +158,6 @@ void setup() {
   fona.setNetworkSettings(F("hologram"));   // sets APN as 'hologram', used with Hologram SIM card
 
   //fona.set_eDRX()
-
-  // enable GPS
-  while (!fona.enableGPS(true)) {
-    Serial.println(F("Failed to turn on GPS, retrying..."));
-    delay(2000); // Retry every 2s
-  }
-  Serial.println(F("Turned on GPS!"));
 
   // first disable data
   if (!fona.enableGPRS(false)) Serial.println(F("Failed to disable data!"));
@@ -163,6 +174,7 @@ void setup() {
   mqtt.subscribe(&feed_deploy);
   mqtt.subscribe(&feed_sampling_rate);
   mqtt.subscribe(&feed_sea_level);
+  mqtt.subscribe(&feed_update_gps_sub);
 
   // begin the BMP280
   bmp.begin(0x76);      // bmp.begin(I2C_address)
@@ -181,16 +193,22 @@ void setup() {
   Serial.println(F("Connected to cell network!"));
   digitalWrite(blueLed, HIGH);
   readRSSI();
-  
+
   // first ensure that we are finished configuring everything in Adafruit IO and want the package to start collecting data
   while (! deployed) {
+
+    while (!netStatus()) {
+      Serial.println(F("Failed to connect to cell network, retrying..."));
+      delay(2000); // Retry every 2s
+      digitalWrite(blueLed, LOW);
+    }
 
     MQTT_connect();
     // subscription packet subloop, this runs and waits for the toggle switch in Adafruit IO to turn on
     Adafruit_MQTT_Subscribe *subscription;
     while ((subscription = mqtt.readSubscription(5000))) {
       if (subscription == &feed_deploy) {
-        Serial.print(F("***Received: ")); Serial.println((char *)feed_deploy.lastread);
+        Serial.print(F("*** Package: ")); Serial.println((char *)feed_deploy.lastread);
         if (strcmp(feed_deploy.lastread, "ON") == 0) {
           Serial.println(F("***Package is deployed"));
           deployed = true;
@@ -201,16 +219,22 @@ void setup() {
         }
       }
       if (subscription == &feed_sea_level) {
-        Serial.print(F("*** Got: "));
+        Serial.print(F("*** Elevation: "));
         Serial.println((char *)feed_sea_level.lastread);
         delay(100);
         sea_level = atoi((char *)feed_sea_level.lastread);
       }
       if (subscription == &feed_sampling_rate) {
-        Serial.print(F("*** Got: "));
+        Serial.print(F("*** Sampling rate: "));
         Serial.println((char *)feed_sampling_rate.lastread);
         delay(100);
         new_time = true;
+      }
+      if (subscription == &feed_update_gps_sub) {
+        Serial.print(F("*** GPS: "));
+        Serial.println((char *)feed_update_gps_sub.lastread);
+        delay(100);
+        //new_loc = true;
       }
     }
     delay(3000);
@@ -227,8 +251,8 @@ void setup() {
 
   // find the initial pressure reading that will correspond to sea level
   float voltage = analogRead(pressurePin);      // convert 10 bit analog reading to voltage
-  voltage = voltage*5/1024;
-  initial_feet_of_water = voltage*5.7724 - 2.8862;        // 0.5-4.5V maps to 0-23.1 feet of water
+  voltage = voltage * 5 / 1024;
+  initial_feet_of_water = voltage * 5.7724 - 2.8862;      // 0.5-4.5V maps to 0-23.1 feet of water
   Serial.print("initial feet of water: "); Serial.print(initial_feet_of_water); Serial.println(" ft");
   delay(50);
 }
@@ -245,40 +269,6 @@ void loop() {
   readRSSI();
 
   digitalWrite(yellowLed, HIGH);
-
-  // take gps data
-  float latitude, longitude, speed_kph, heading, altitude;
-  char latBuff[12], longBuff[12], locBuff[50], speedBuff[12], headBuff[12], altBuff[12];
-  int gps_fails = 0;
-
-  while (!fona.getGPS(&latitude, &longitude, &speed_kph, &heading, &altitude) && gps_fails < 5) {     // go into Adafruit_FONA.h and uncomment //#define MQTT_DEBUG on line 37 for this to work (https://github.com/adafruit/Adafruit_MQTT_Library/issues/54)
-    digitalWrite(whiteLed, HIGH);
-    Serial.println(F("Failed to get GPS location, retrying..."));
-    delay(2000); // Retry every 2s
-    gps_fails++;
-  }
-  if(gps_fails == 5) {
-      Serial.println("Giving up on GPS");
-    }
-  if(gps_fails < 5) {
-    digitalWrite(whiteLed, LOW);
-    Serial.println(F("Found 'eeeeem!"));
-    Serial.println(F("---------------------"));
-    Serial.print(F("Latitude: ")); Serial.println(latitude, 6);
-    Serial.print(F("Longitude: ")); Serial.println(longitude, 6);
-    Serial.print(F("Speed: ")); Serial.println(speed_kph);
-    Serial.print(F("Heading: ")); Serial.println(heading);
-    Serial.print(F("Altitude: ")); Serial.println(altitude);
-  
-     dtostrf(latitude, 1, 6, latBuff); // float_val, min_width, digits_after_decimal, char_buffer
-    dtostrf(longitude, 1, 6, longBuff);
-    dtostrf(speed_kph, 1, 0, speedBuff);
-    dtostrf(heading, 1, 0, headBuff);
-    dtostrf(altitude, 1, 1, altBuff);
-  
-    sprintf(locBuff, "%s,%s,%s,%s", speedBuff, latBuff, longBuff, altBuff);
-  }
-  gps_fails = 0;
 
   // find the time at which we are logging all this data
   time_t t = RTC.get();
@@ -315,8 +305,8 @@ void loop() {
 
   // take stage pressure data
   float voltage = analogRead(pressurePin);                                                     // convert 10 bit analog reading to voltage
-  voltage = voltage*5/1023;
-  float feet_of_water = voltage*5.7724 - 2.8862;                                               // 0.5-4.5V maps to 0-23.1 feet of water
+  voltage = voltage * 5 / 1023;
+  float feet_of_water = voltage * 5.7724 - 2.8862;                                             // 0.5-4.5V maps to 0-23.1 feet of water
   Serial.print("Feet above sensor: "); Serial.print(feet_of_water); Serial.println(" ft");
   feet_of_water = sea_level + (feet_of_water - initial_feet_of_water);
   Serial.print("\tabove sea level: "); Serial.print(feet_of_water); Serial.println(" ft");
@@ -338,6 +328,13 @@ void loop() {
       delay(100);
       new_time = true;
     }
+    // this checks if we need to get the gps location
+    if (subscription == &feed_update_gps_sub) {
+      Serial.print(F("*** GPS: "));
+      Serial.println((char *)feed_update_gps_sub.lastread);
+      delay(100);
+      //new_loc = true;
+    }
     // this checks if the deployment switch is ever turned off
     if (subscription == &feed_deploy) {
       Serial.print(F("***Deployed: ")); Serial.print((char *)feed_deploy.lastread);
@@ -346,8 +343,8 @@ void loop() {
 
   // save to SD card
   File file = SD.open("001.csv", FILE_WRITE);
-  if(file) {
-    
+  if (file) {
+
     // write the time stamp
     file.print(String(month(t)));
     file.print("/");
@@ -374,8 +371,61 @@ void loop() {
     Serial.println(F("Unable to open file"));
   }
 
+  // initialize gps variables
+  char updateBuff[3];
+  float latitude, longitude, speed_kph, heading, altitude;
+  char latBuff[12], longBuff[12], locBuff[50], speedBuff[12], headBuff[12], altBuff[12];
+  int gps_fails = 0;
+
+  // if we got ON, then find the location
+  if (strcmp(feed_update_gps_sub.lastread, "ON") == 0) {
+
+    // enable GPS
+    while (!fona.enableGPS(true)) {
+      Serial.println(F("Failed to turn on GPS, retrying..."));
+      delay(2000); // Retry every 2s
+    }
+    Serial.println(F("Turned on GPS!"));
+
+    // take gps data
+    while (!fona.getGPS(&latitude, &longitude, &speed_kph, &heading, &altitude) && gps_fails < 5) {     // go into Adafruit_FONA.h and uncomment //#define MQTT_DEBUG on line 37 for this to work (https://github.com/adafruit/Adafruit_MQTT_Library/issues/54)
+      digitalWrite(whiteLed, HIGH);
+      Serial.println(F("Failed to get GPS location, retrying..."));
+      delay(2000); // Retry every 2s
+      gps_fails++;
+    }
+    if (gps_fails == 5) {
+      Serial.println("Giving up on GPS");
+    }
+    if (gps_fails < 5) {
+      digitalWrite(whiteLed, LOW);
+      Serial.println(F("Found 'eeeeem!"));
+      Serial.println(F("---------------------"));
+      Serial.print(F("Latitude: ")); Serial.println(latitude, 6);
+      Serial.print(F("Longitude: ")); Serial.println(longitude, 6);
+      Serial.print(F("Speed: ")); Serial.println(speed_kph);
+      Serial.print(F("Heading: ")); Serial.println(heading);
+      Serial.print(F("Altitude: ")); Serial.println(altitude);
+
+      dtostrf(latitude, 1, 6, latBuff); // float_val, min_width, digits_after_decimal, char_buffer
+      dtostrf(longitude, 1, 6, longBuff);
+      dtostrf(speed_kph, 1, 0, speedBuff);
+      dtostrf(heading, 1, 0, headBuff);
+      dtostrf(altitude, 1, 1, altBuff);
+
+      sprintf(locBuff, "%s,%s,%s,%s", speedBuff, latBuff, longBuff, altBuff);
+      new_loc = true;
+    }
+    gps_fails = 0;
+    updateBuff[0] = "OFF";
+    MQTT_publish_checkSuccess(feed_update_gps_pub, updateBuff);
+  }
+
   // publish data to Adafruit IO
-  MQTT_publish_checkSuccess(feed_location, locBuff);
+  if (new_loc == true) {
+    MQTT_publish_checkSuccess(feed_location, locBuff);
+    new_loc = false;
+  }
   MQTT_publish_checkSuccess(feed_stage, stageBuff);
   MQTT_publish_checkSuccess(feed_temp, tempBuff);
   MQTT_publish_checkSuccess(feed_pressure, pressBuff);
@@ -395,12 +445,41 @@ void loop() {
     deployed = false;
   }
 
-  // Delay until next post
   Serial.print(F("Waiting for ")); Serial.print(sampling_rate); Serial.println(F(" seconds\r\n"));
   digitalWrite(yellowLed, LOW);
-  delay(sampling_rate * 1000UL); // Delay
+
+  t = RTC.get();
+
+  if (second(t) < 60 - sampling_rate) {
+    RTC.setAlarm(ALM1_MATCH_SECONDS, second(t) + sampling_rate, 0, 0, 0);
+  }
+  else {
+    RTC.setAlarm(ALM1_MATCH_SECONDS, second(t) - 60 + sampling_rate, 0, 0, 0);
+  }
+
+  RTC.alarm(ALARM_1);
+
+  goSleep();
 }
 
+
+void goSleep() {
+  Serial.println("Going to sleep...");
+  delay(100);
+
+  // activate sleep mode, attach interrupt and assign a waking function to run
+  sleep_enable();
+  attachInterrupt(interrupt, wakeUp, LOW);
+  set_sleep_mode(SLEEP_MODE_PWR_DOWN);              // set to full sleep mode
+  sleep_cpu();
+}
+
+void wakeUp() {
+  Serial.println("RTC Interrupt fired");
+  delay(100);
+  sleep_disable();
+  detachInterrupt(interrupt);
+}
 
 
 void moduleSetup() {
@@ -491,7 +570,7 @@ void MQTT_publish_checkSuccess(Adafruit_MQTT_Publish &feed, const char *feedCont
   Serial.println(F("Sending data..."));
   uint8_t txfailures = 0;
   if (! feed.publish(feedContent)) {
-    for(int i=0; i<5; i++) {
+    for (int i = 0; i < 5; i++) {
       digitalWrite(redLed, HIGH);
       delay(200);
       digitalWrite(redLed, LOW);
