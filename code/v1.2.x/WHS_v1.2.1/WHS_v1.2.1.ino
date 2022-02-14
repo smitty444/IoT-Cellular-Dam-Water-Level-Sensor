@@ -9,6 +9,7 @@
 
 #include "Adafruit_FONA.h"            // from botletics: https://github.com/botletics/SIM7000-LTE-Shield/tree/master/Code
 #include "Adafruit_MQTT.h"            // from adafruit:  https://github.com/adafruit/Adafruit_MQTT_Library
+#include "Adafruit_FONA.cpp"
 #include "Adafruit_MQTT_FONA.h"
 
 #include <Adafruit_BMP280.h>          // BMP280 SENSOR LIBRARY
@@ -496,7 +497,7 @@ void wakeUp() {
 
   fona.write("AT+CSCLK=0");
   if(fona.available()) {
-    Serial.write(fona.read());
+    Serial.println(fona.read());
   }
 
   delay(100);

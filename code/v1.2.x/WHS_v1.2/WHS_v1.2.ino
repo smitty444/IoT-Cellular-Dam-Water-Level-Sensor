@@ -415,6 +415,11 @@ void loop() {
 
       sprintf(locBuff, "%s,%s,%s,%s", speedBuff, latBuff, longBuff, altBuff);
       new_loc = true;
+      while (!fona.enableGPS(false)) {
+        Serial.println(F("Failed to turn off GPS, retrying..."));
+        delay(2000);
+      }
+      Serial.println(F("GPS turned off"));
     }
     gps_fails = 0;
     updateBuff[0] = "OFF";
