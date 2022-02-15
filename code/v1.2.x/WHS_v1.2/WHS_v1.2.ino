@@ -69,6 +69,7 @@ Adafruit_MQTT_Publish feed_pressure = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME 
 Adafruit_MQTT_Publish feed_stage = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/feeds/stage");
 Adafruit_MQTT_Publish feed_pts = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/feeds/pressure-to-stage");
 Adafruit_MQTT_Publish feed_update_gps_pub = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/feeds/update-gps");
+Adafruit_MQTT_Publish feed_contact = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/feeds/contact-sensor");
 
 // THE SUBSCRIBING FEEDS -----------------------------------------------------------------------------
 Adafruit_MQTT_Subscribe feed_deploy = Adafruit_MQTT_Subscribe(&mqtt, AIO_USERNAME "/feeds/deploy");
@@ -89,6 +90,9 @@ NewPing sonar(trigPin, echoPin);
 
 // define the pressure sensor pin
 #define pressurePin A10
+
+// define the water contact sensor pin
+#define contactPin 41
 
 // some global variables
 uint8_t readline(char *buff, uint8_t maxbuff, uint16_t timeout = 0);
@@ -120,6 +124,9 @@ void setup() {
   // configure the JSN-SR04 pins
   pinMode(trigPin, OUTPUT);
   pinMode(echoPin, INPUT);
+
+  // configure the contact sensor pin
+  pinMode(contactPin, INPUT);
 
   // configure the SD SS pin
   pinMode(chipSelect, OUTPUT);
@@ -279,7 +286,6 @@ void loop() {
   Serial.print(celsius);
   Serial.println(" *C");
   char tempBuff[6];
-
   dtostrf(celsius, 1, 2, tempBuff);
 
   // take ambient pressure data
@@ -312,6 +318,12 @@ void loop() {
   Serial.print("\tabove sea level: "); Serial.print(feet_of_water); Serial.println(" ft");
   char ptsBuff[7];
   dtostrf(feet_of_water, 1, 2, ptsBuff);
+
+  // take contact sensor data
+  int contact = digitalRead(contactPin);
+  Serial.print("Contact pin state: "); Serial.println(contact);
+  char contactBuff[2];
+  itoa(contact, contactBuff, 3);
 
   Serial.println(F("---------------------"));
 
@@ -435,6 +447,7 @@ void loop() {
   MQTT_publish_checkSuccess(feed_temp, tempBuff);
   MQTT_publish_checkSuccess(feed_pressure, pressBuff);
   MQTT_publish_checkSuccess(feed_pts, ptsBuff);
+  MQTT_publish_checkSuccess(feed_contact, contactBuff);
 
   // reassign the sampling rate
   if (new_time == true) {
