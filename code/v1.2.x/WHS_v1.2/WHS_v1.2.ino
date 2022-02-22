@@ -468,12 +468,22 @@ void loop() {
 
   t = RTC.get();
 
+  // uncomment to have alarm units in seconds
   if (second(t) < 60 - sampling_rate) {
     RTC.setAlarm(ALM1_MATCH_SECONDS, second(t) + sampling_rate, 0, 0, 0);
   }
   else {
     RTC.setAlarm(ALM1_MATCH_SECONDS, second(t) - 60 + sampling_rate, 0, 0, 0);
   }
+
+  // uncomment to have alarm units in minutes
+  if (minute(t) < 60 - sampling_rate) {
+    RTC.setAlarm(ALM1_MATCH_MINUTES, 0, minute(t) + sampling_rate, 0, 0);
+  }
+  else {
+    RTC.setAlarm(ALM1_MATCH_MINUTES, 0, minute(t) - 60 + sampling_rate, 0, 0);
+  }
+
 
   RTC.alarm(ALARM_1);
 
