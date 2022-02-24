@@ -9,7 +9,6 @@
 
 #include "Adafruit_FONA.h"            // from botletics: https://github.com/botletics/SIM7000-LTE-Shield/tree/master/Code
 #include "Adafruit_MQTT.h"            // from adafruit:  https://github.com/adafruit/Adafruit_MQTT_Library
-#include "Adafruit_FONA.cpp"
 #include "Adafruit_MQTT_FONA.h"
 
 #include <Adafruit_BMP280.h>          // BMP280 SENSOR LIBRARY
@@ -174,6 +173,10 @@ void setup() {
   }
   Serial.println(F("Enabled data!"));
 
+  // make sure GPS is off to save power 
+  if(!fona.enableGPS(false)) {
+    Serial.println(F("Failed to turn off GPS"));
+  }
 
   // subscribe to the subscription feeds
   mqtt.subscribe(&feed_deploy);
@@ -263,6 +266,10 @@ void setup() {
 }
 
 void loop() {
+  // pull DTR low to wake fona from sleep mode
+  digitalWrite(FONA_DTR, LOW);
+  delay(1000);
+  
   // connect to cell network
   while (!netStatus()) {
     Serial.println(F("Failed to connect to cell network, retrying..."));
@@ -402,7 +409,7 @@ void loop() {
     if (gps_fails == 5) {
       Serial.println("Giving up on GPS");
     }
-    if (gps_fails < 5) {
+    else if (gps_fails < 5) {
       digitalWrite(whiteLed, LOW);
       Serial.println(F("Found 'eeeeem!"));
       Serial.println(F("---------------------"));
@@ -424,6 +431,11 @@ void loop() {
     gps_fails = 0;
     updateBuff[0] = "OFF";
     MQTT_publish_checkSuccess(feed_update_gps_pub, updateBuff);
+
+    // turn GPS back off
+    if(!fona.enableGPS(false)) {
+      Serial.println(F("Failed to turn off GPS"));
+    }
   }
 
   // publish data to Adafruit IO
@@ -492,9 +504,11 @@ void wakeUp() {
   sleep_disable();
   detachInterrupt(interrupt);
 
+  // pull DTR pin low to wake fona module from sleep mode
   digitalWrite(FONA_DTR, LOW);
   delay(100);
 
+  // disable slow clock
   fona.write("AT+CSCLK=0");
   if(fona.available()) {
     Serial.println(fona.read());
