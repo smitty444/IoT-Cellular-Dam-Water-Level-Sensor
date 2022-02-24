@@ -9,6 +9,3 @@
 - created by Corinne
 - add a way to turn off cellular shield
 
-## WHS_v1.2.2
-- created by Corinne
-- change sampling rate units from minutes to seconds
