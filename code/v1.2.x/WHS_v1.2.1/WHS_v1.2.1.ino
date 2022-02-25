@@ -9,7 +9,7 @@
 
 #include "Adafruit_FONA.h"            // from botletics: https://github.com/botletics/SIM7000-LTE-Shield/tree/master/Code
 #include "Adafruit_MQTT.h"            // from adafruit:  https://github.com/adafruit/Adafruit_MQTT_Library
-#include "Adafruit_FONA.cpp"
+//#include "Adafruit_FONA.cpp"
 #include "Adafruit_MQTT_FONA.h"
 
 #include <Adafruit_BMP280.h>          // BMP280 SENSOR LIBRARY
@@ -105,7 +105,7 @@ float sea_level = 0;
 
 void setup() {
   Serial.begin(9600);
-  Serial.println(F("*** Executing WHS_v1.2.ino ***"));
+  Serial.println(F("*** Executing WHS_v1.2.1.ino ***"));
 
   // configure the led
   pinMode(redLed, OUTPUT);
@@ -162,7 +162,7 @@ void setup() {
 
   fona.setNetworkSettings(F("hologram"));   // sets APN as 'hologram', used with Hologram SIM card
 
-  //fona.set_eDRX(1,5,0100);                // sets eDRX mode (not supported by T-mobile LTE 
+  //fona.set_eDRX(1,5,0100);                // sets eDRX mode (not supported by T-mobile LTE) 
 
   // first disable data
   if (!fona.enableGPRS(false)) Serial.println(F("Failed to disable data!"));
