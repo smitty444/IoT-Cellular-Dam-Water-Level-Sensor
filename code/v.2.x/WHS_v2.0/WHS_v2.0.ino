@@ -9,6 +9,7 @@
 
 #include "Adafruit_FONA.h"            // from botletics: https://github.com/botletics/SIM7000-LTE-Shield/tree/master/Code
 #include "Adafruit_MQTT.h"            // from adafruit:  https://github.com/adafruit/Adafruit_MQTT_Library
+#include "Adafruit_FONA.cpp"
 #include "Adafruit_MQTT_FONA.h"
 
 #include <Adafruit_BMP280.h>          // BMP280 SENSOR LIBRARY
@@ -32,6 +33,7 @@
 // FONA PINS -----------------------------------------------------------------------------------------
 #define FONA_PWRKEY 6
 #define FONA_RST 7
+#define FONA_DTR 8
 #define FONA_TX 10
 #define FONA_RX 11
 
@@ -69,7 +71,6 @@ Adafruit_MQTT_Publish feed_pressure = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME 
 Adafruit_MQTT_Publish feed_stage = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/feeds/stage");
 Adafruit_MQTT_Publish feed_pts = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/feeds/pressure-to-stage");
 Adafruit_MQTT_Publish feed_update_gps_pub = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/feeds/update-gps");
-Adafruit_MQTT_Publish feed_contact = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/feeds/contact-sensor");
 
 // THE SUBSCRIBING FEEDS -----------------------------------------------------------------------------
 Adafruit_MQTT_Subscribe feed_deploy = Adafruit_MQTT_Subscribe(&mqtt, AIO_USERNAME "/feeds/deploy");
@@ -90,9 +91,6 @@ NewPing sonar(trigPin, echoPin);
 
 // define the pressure sensor pin
 #define pressurePin A10
-
-// define the water contact sensor pin
-#define contactPin 41
 
 // some global variables
 uint8_t readline(char *buff, uint8_t maxbuff, uint16_t timeout = 0);
@@ -125,9 +123,6 @@ void setup() {
   pinMode(trigPin, OUTPUT);
   pinMode(echoPin, INPUT);
 
-  // configure the contact sensor pin
-  pinMode(contactPin, INPUT);
-
   // configure the SD SS pin
   pinMode(chipSelect, OUTPUT);
 
@@ -156,6 +151,9 @@ void setup() {
   pinMode(FONA_RST, OUTPUT);
   digitalWrite(FONA_RST, HIGH);             // reset is default high
 
+  pinMode(FONA_DTR, OUTPUT);
+  digitalWrite(FONA_DTR, HIGH);
+
   fona.powerOn(FONA_PWRKEY);                // power on fona by pulsing power key
 
   moduleSetup();                            // establish serial communication, find fona, determine device IMEI
@@ -164,7 +162,7 @@ void setup() {
 
   fona.setNetworkSettings(F("hologram"));   // sets APN as 'hologram', used with Hologram SIM card
 
-  //fona.set_eDRX()
+  //fona.set_eDRX(1,5,0100);                // sets eDRX mode (not supported by T-mobile LTE 
 
   // first disable data
   if (!fona.enableGPRS(false)) Serial.println(F("Failed to disable data!"));
@@ -286,6 +284,7 @@ void loop() {
   Serial.print(celsius);
   Serial.println(" *C");
   char tempBuff[6];
+
   dtostrf(celsius, 1, 2, tempBuff);
 
   // take ambient pressure data
@@ -318,12 +317,6 @@ void loop() {
   Serial.print("\tabove sea level: "); Serial.print(feet_of_water); Serial.println(" ft");
   char ptsBuff[7];
   dtostrf(feet_of_water, 1, 2, ptsBuff);
-
-  // take contact sensor data
-  int contact = digitalRead(contactPin);
-  Serial.print("Contact pin state: "); Serial.println(contact);
-  char contactBuff[2];
-  itoa(contact, contactBuff, 3);
 
   Serial.println(F("---------------------"));
 
@@ -427,11 +420,6 @@ void loop() {
 
       sprintf(locBuff, "%s,%s,%s,%s", speedBuff, latBuff, longBuff, altBuff);
       new_loc = true;
-      while (!fona.enableGPS(false)) {
-        Serial.println(F("Failed to turn off GPS, retrying..."));
-        delay(2000);
-      }
-      Serial.println(F("GPS turned off"));
     }
     gps_fails = 0;
     updateBuff[0] = "OFF";
@@ -447,7 +435,6 @@ void loop() {
   MQTT_publish_checkSuccess(feed_temp, tempBuff);
   MQTT_publish_checkSuccess(feed_pressure, pressBuff);
   MQTT_publish_checkSuccess(feed_pts, ptsBuff);
-  MQTT_publish_checkSuccess(feed_contact, contactBuff);
 
   // reassign the sampling rate
   if (new_time == true) {
@@ -468,22 +455,12 @@ void loop() {
 
   t = RTC.get();
 
-  // uncomment to have alarm units in seconds
   if (second(t) < 60 - sampling_rate) {
     RTC.setAlarm(ALM1_MATCH_SECONDS, second(t) + sampling_rate, 0, 0, 0);
   }
   else {
     RTC.setAlarm(ALM1_MATCH_SECONDS, second(t) - 60 + sampling_rate, 0, 0, 0);
   }
-
-  // uncomment to have alarm units in minutes
-  if (minute(t) < 60 - sampling_rate) {
-    RTC.setAlarm(ALM1_MATCH_MINUTES, 0, minute(t) + sampling_rate, 0, 0);
-  }
-  else {
-    RTC.setAlarm(ALM1_MATCH_MINUTES, 0, minute(t) - 60 + sampling_rate, 0, 0);
-  }
-
 
   RTC.alarm(ALARM_1);
 
@@ -494,6 +471,13 @@ void loop() {
 void goSleep() {
   Serial.println("Going to sleep...");
   delay(100);
+
+  fona.write("AT+CSCLK=1");
+  if(fona.available()) {
+    Serial.println(fona.read());
+  }
+
+  digitalWrite(FONA_DTR, HIGH);
 
   // activate sleep mode, attach interrupt and assign a waking function to run
   sleep_enable();
@@ -507,6 +491,16 @@ void wakeUp() {
   delay(100);
   sleep_disable();
   detachInterrupt(interrupt);
+
+  digitalWrite(FONA_DTR, LOW);
+  delay(100);
+
+  fona.write("AT+CSCLK=0");
+  if(fona.available()) {
+    Serial.println(fona.read());
+  }
+
+  delay(100);
 }
 
 

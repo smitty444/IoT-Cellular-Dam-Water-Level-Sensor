@@ -11,13 +11,15 @@
 #include "Adafruit_MQTT.h"            // from adafruit:  https://github.com/adafruit/Adafruit_MQTT_Library
 #include "Adafruit_MQTT_FONA.h"
 
-#include <Adafruit_BMP280.h>          // BMP280 SENSOR LIBRARY
+#include <Adafruit_MPRLS.h>           // MPRLS (PRESSURE) SENSOR LIBRARY
+#include <Adafruit_MCP9808.h>         // MCP9808 (TEMPERATURE) SENSOR LIBRARY 
 #include <NewPing.h>                  // JSN-SR04 LIBRARY https://bitbucket.org/teckel12/arduino-new-ping/wiki/Home 
 #include <SD.h>                       // SD CARD LIBRARY
 #include <SPI.h>                      // SERIAL PERIPHERAL INTERFACE LIBRARY
 #include <DS3232RTC.h>                // RTC LIBRARY https://github.com/JChristensen/DS3232RTC
 #include <Wire.h>                     // I2C COMMUNICATION LIBRARY
-#include <avr/sleep.h>                // SLEEP LIBRARY
+#include <avr/sleep.h>                // SLEEP LIBRARIES
+#include <avr/power.h>
 
 /*
    SPI PINS FOR MEGA:
@@ -32,15 +34,16 @@
 // FONA PINS -----------------------------------------------------------------------------------------
 #define FONA_PWRKEY 6
 #define FONA_RST 7
+#define FONA_DTR 8
 #define FONA_TX 10
 #define FONA_RX 11
 
 // indicator LEDs
-#define redLed 13                      // MQTT publish error
-#define yellowLed 4                    // data collection occurring
-#define greenLed 3                     // MQTT connected
-#define blueLed 2                      // network connected
-#define whiteLed 15                    // GPS error
+#define redLed 26                      // MQTT publish error
+#define yellowLed 24                   // data collection occurring
+#define greenLed 23                    // MQTT connected
+#define blueLed 22                     // network connected
+#define whiteLed 25                    // GPS error
 #define interrupt 5                    // interrupt pin for RTC (NOTE: 5 is INT5, the hardware interrupt that is on pin 18)
 
 int sampling_rate = 15;                // initialize the delay between loops. This can be changed with subscribe
@@ -69,7 +72,6 @@ Adafruit_MQTT_Publish feed_pressure = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME 
 Adafruit_MQTT_Publish feed_stage = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/feeds/stage");
 Adafruit_MQTT_Publish feed_pts = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/feeds/pressure-to-stage");
 Adafruit_MQTT_Publish feed_update_gps_pub = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/feeds/update-gps");
-Adafruit_MQTT_Publish feed_contact = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/feeds/contact-sensor");
 
 // THE SUBSCRIBING FEEDS -----------------------------------------------------------------------------
 Adafruit_MQTT_Subscribe feed_deploy = Adafruit_MQTT_Subscribe(&mqtt, AIO_USERNAME "/feeds/deploy");
@@ -80,19 +82,19 @@ Adafruit_MQTT_Subscribe feed_update_gps_sub = Adafruit_MQTT_Subscribe(&mqtt, AIO
 // define the SS for SD card
 #define chipSelect 53
 
-// construct the BMP280
-Adafruit_BMP280 bmp;
+// construct the MCP9808
+Adafruit_MCP9808 tempsensor = Adafruit_MCP9808();
+
+// construct the MPRLS
+Adafruit_MPRLS mpr = Adafruit_MPRLS(-1, -1);      // Adafruit_MPRLS(RESET_PIN, EOC_PIN)
 
 // construct the JSN-SR04
-#define trigPin 33
-#define echoPin 32
+#define trigPin 47
+#define echoPin 46
 NewPing sonar(trigPin, echoPin);
 
 // define the pressure sensor pin
 #define pressurePin A10
-
-// define the water contact sensor pin
-#define contactPin 41
 
 // some global variables
 uint8_t readline(char *buff, uint8_t maxbuff, uint16_t timeout = 0);
@@ -107,7 +109,7 @@ float sea_level = 0;
 
 void setup() {
   Serial.begin(9600);
-  Serial.println(F("*** Executing WHS_v1.2.ino ***"));
+  Serial.println(F("*** Executing WHS_v2.0.ino ***"));
 
   // configure the led
   pinMode(redLed, OUTPUT);
@@ -125,9 +127,6 @@ void setup() {
   pinMode(trigPin, OUTPUT);
   pinMode(echoPin, INPUT);
 
-  // configure the contact sensor pin
-  pinMode(contactPin, INPUT);
-
   // configure the SD SS pin
   pinMode(chipSelect, OUTPUT);
 
@@ -137,6 +136,18 @@ void setup() {
   // check if SD card began
   if (!SD.begin(chipSelect)) {
     Serial.println("SD card not found");
+    while (1);
+  }
+
+  // check if MPRLS began 
+  if(! mpr.begin()) {
+    Serial.println(F("MPRLS not found"));
+    while(1);
+  }
+
+  tempsensor.wake();                                  // wake up the MCP9808
+  if (!tempsensor.begin(0x19)) {
+    Serial.println("MCP9808 not found");
     while (1);
   }
 
@@ -156,6 +167,9 @@ void setup() {
   pinMode(FONA_RST, OUTPUT);
   digitalWrite(FONA_RST, HIGH);             // reset is default high
 
+  pinMode(FONA_DTR, OUTPUT);
+  digitalWrite(FONA_DTR, HIGH);
+
   fona.powerOn(FONA_PWRKEY);                // power on fona by pulsing power key
 
   moduleSetup();                            // establish serial communication, find fona, determine device IMEI
@@ -164,7 +178,7 @@ void setup() {
 
   fona.setNetworkSettings(F("hologram"));   // sets APN as 'hologram', used with Hologram SIM card
 
-  //fona.set_eDRX()
+  //fona.set_eDRX(1,5,0100);                // sets eDRX mode (not supported by T-mobile LTE 
 
   // first disable data
   if (!fona.enableGPRS(false)) Serial.println(F("Failed to disable data!"));
@@ -182,14 +196,6 @@ void setup() {
   mqtt.subscribe(&feed_sampling_rate);
   mqtt.subscribe(&feed_sea_level);
   mqtt.subscribe(&feed_update_gps_sub);
-
-  // begin the BMP280
-  bmp.begin(0x76);      // bmp.begin(I2C_address)
-  bmp.setSampling(Adafruit_BMP280::MODE_NORMAL,     /* Operating Mode. */
-                  Adafruit_BMP280::SAMPLING_X2,     /* Temp. oversampling */
-                  Adafruit_BMP280::SAMPLING_X16,    /* Pressure oversampling */
-                  Adafruit_BMP280::FILTER_X16,      /* Filtering. */
-                  Adafruit_BMP280::STANDBY_MS_500); /* Standby time. */
 
   // connect to cell network
   while (!netStatus()) {
@@ -280,20 +286,19 @@ void loop() {
   // find the time at which we are logging all this data
   time_t t = RTC.get();
 
-  // take temperature data
-  float celsius = bmp.readTemperature();
-  Serial.print(F("Temperature = "));
-  Serial.print(celsius);
-  Serial.println(" *C");
+  // take package temperature data
+  tempsensor.wake(); 
+  float tempC = tempsensor.readTempC();
+  Serial.print("Package temperature: "); Serial.print(tempC); Serial.print("*C\t"); 
   char tempBuff[6];
-  dtostrf(celsius, 1, 2, tempBuff);
+  dtostrf(tempC, 1, 2, tempBuff);
+  Serial.println("Shutting down the MCP9808...");
+  tempsensor.shutdown();                                // In this mode the MCP9808 draws only about 0.1uA
 
   // take ambient pressure data
-  float pressure = bmp.readPressure();
-  Serial.print(F("Pressure = "));
-  Serial.print(pressure);
-  Serial.println(" Pa");
-  char pressBuff[10];
+  float pressure = mpr.readPressure();
+  Serial.print(F("Pressure: ")); Serial.print(pressure / 68.947572932); Serial.println(F(" psi"));
+  char pressBuff[6];
   dtostrf(pressure, 1, 2, pressBuff);
 
   // take stage data
@@ -318,12 +323,6 @@ void loop() {
   Serial.print("\tabove sea level: "); Serial.print(feet_of_water); Serial.println(" ft");
   char ptsBuff[7];
   dtostrf(feet_of_water, 1, 2, ptsBuff);
-
-  // take contact sensor data
-  int contact = digitalRead(contactPin);
-  Serial.print("Contact pin state: "); Serial.println(contact);
-  char contactBuff[2];
-  itoa(contact, contactBuff, 3);
 
   Serial.println(F("---------------------"));
 
@@ -372,7 +371,6 @@ void loop() {
     file.print(" ");
 
     // write the data
-    file.print(celsius); file.print(" ");
     file.print(pressure); file.print(" ");
     file.print(distance); file.print(" ");
     file.print(feet_of_water); file.print(" ");
@@ -427,11 +425,6 @@ void loop() {
 
       sprintf(locBuff, "%s,%s,%s,%s", speedBuff, latBuff, longBuff, altBuff);
       new_loc = true;
-      while (!fona.enableGPS(false)) {
-        Serial.println(F("Failed to turn off GPS, retrying..."));
-        delay(2000);
-      }
-      Serial.println(F("GPS turned off"));
     }
     gps_fails = 0;
     updateBuff[0] = "OFF";
@@ -444,10 +437,8 @@ void loop() {
     new_loc = false;
   }
   MQTT_publish_checkSuccess(feed_stage, stageBuff);
-  MQTT_publish_checkSuccess(feed_temp, tempBuff);
   MQTT_publish_checkSuccess(feed_pressure, pressBuff);
   MQTT_publish_checkSuccess(feed_pts, ptsBuff);
-  MQTT_publish_checkSuccess(feed_contact, contactBuff);
 
   // reassign the sampling rate
   if (new_time == true) {
@@ -468,22 +459,12 @@ void loop() {
 
   t = RTC.get();
 
-  // uncomment to have alarm units in seconds
   if (second(t) < 60 - sampling_rate) {
     RTC.setAlarm(ALM1_MATCH_SECONDS, second(t) + sampling_rate, 0, 0, 0);
   }
   else {
     RTC.setAlarm(ALM1_MATCH_SECONDS, second(t) - 60 + sampling_rate, 0, 0, 0);
   }
-
-  // uncomment to have alarm units in minutes
-  if (minute(t) < 60 - sampling_rate) {
-    RTC.setAlarm(ALM1_MATCH_MINUTES, 0, minute(t) + sampling_rate, 0, 0);
-  }
-  else {
-    RTC.setAlarm(ALM1_MATCH_MINUTES, 0, minute(t) - 60 + sampling_rate, 0, 0);
-  }
-
 
   RTC.alarm(ALARM_1);
 
@@ -494,6 +475,13 @@ void loop() {
 void goSleep() {
   Serial.println("Going to sleep...");
   delay(100);
+
+  fona.write("AT+CSCLK=1");
+  if(fona.available()) {
+    Serial.println(fona.read());
+  }
+
+  digitalWrite(FONA_DTR, HIGH);
 
   // activate sleep mode, attach interrupt and assign a waking function to run
   sleep_enable();
@@ -507,6 +495,16 @@ void wakeUp() {
   delay(100);
   sleep_disable();
   detachInterrupt(interrupt);
+
+  digitalWrite(FONA_DTR, LOW);
+  delay(100);
+
+  fona.write("AT+CSCLK=0");
+  if(fona.available()) {
+    Serial.println(fona.read());
+  }
+
+  delay(100);
 }
 
 
