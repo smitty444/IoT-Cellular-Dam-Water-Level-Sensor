@@ -10,7 +10,11 @@
 
 # v1.2.x
 - focus on power saving modes
+- adaptive sampling
 - milestones: RTC power down (minutes and seconds), FONA power down
+
+# v2.x
+- codes to be used with the v1 of EDA
 
 # WLS_MQTT_toAdafruitIO_v6_STABLE
 - Shawn's code for his dashboard, unedited
