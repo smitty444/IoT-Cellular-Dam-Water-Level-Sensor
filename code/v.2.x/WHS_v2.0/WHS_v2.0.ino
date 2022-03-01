@@ -296,8 +296,8 @@ void loop() {
   tempsensor.shutdown();                                // In this mode the MCP9808 draws only about 0.1uA
 
   // take ambient pressure data
-  float pressure = mpr.readPressure();
-  Serial.print(F("Pressure: ")); Serial.print(pressure / 68.947572932); Serial.println(F(" psi"));
+  float pressure = mpr.readPressure() / 68.947572932;
+  Serial.print(F("Pressure: ")); Serial.print(pressure); Serial.println(F(" psi"));
   char pressBuff[6];
   dtostrf(pressure, 1, 2, pressBuff);
 
