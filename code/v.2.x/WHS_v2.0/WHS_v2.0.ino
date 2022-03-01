@@ -9,16 +9,17 @@
 
 #include "Adafruit_FONA.h"            // from botletics: https://github.com/botletics/SIM7000-LTE-Shield/tree/master/Code
 #include "Adafruit_MQTT.h"            // from adafruit:  https://github.com/adafruit/Adafruit_MQTT_Library
-#include "Adafruit_FONA.cpp"
 #include "Adafruit_MQTT_FONA.h"
 
-#include <Adafruit_BMP280.h>          // BMP280 SENSOR LIBRARY
+#include <Adafruit_MPRLS.h>           // MPRLS (PRESSURE) SENSOR LIBRARY
+#include <Adafruit_MCP9808.h>         // MCP9808 (TEMPERATURE) SENSOR LIBRARY 
 #include <NewPing.h>                  // JSN-SR04 LIBRARY https://bitbucket.org/teckel12/arduino-new-ping/wiki/Home 
 #include <SD.h>                       // SD CARD LIBRARY
 #include <SPI.h>                      // SERIAL PERIPHERAL INTERFACE LIBRARY
 #include <DS3232RTC.h>                // RTC LIBRARY https://github.com/JChristensen/DS3232RTC
 #include <Wire.h>                     // I2C COMMUNICATION LIBRARY
-#include <avr/sleep.h>                // SLEEP LIBRARY
+#include <avr/sleep.h>                // SLEEP LIBRARIES
+#include <avr/power.h>
 
 /*
    SPI PINS FOR MEGA:
@@ -38,11 +39,11 @@
 #define FONA_RX 11
 
 // indicator LEDs
-#define redLed 13                      // MQTT publish error
-#define yellowLed 4                    // data collection occurring
-#define greenLed 3                     // MQTT connected
-#define blueLed 2                      // network connected
-#define whiteLed 15                    // GPS error
+#define redLed 26                      // MQTT publish error
+#define yellowLed 24                   // data collection occurring
+#define greenLed 23                    // MQTT connected
+#define blueLed 22                     // network connected
+#define whiteLed 25                    // GPS error
 #define interrupt 5                    // interrupt pin for RTC (NOTE: 5 is INT5, the hardware interrupt that is on pin 18)
 
 int sampling_rate = 15;                // initialize the delay between loops. This can be changed with subscribe
@@ -81,12 +82,15 @@ Adafruit_MQTT_Subscribe feed_update_gps_sub = Adafruit_MQTT_Subscribe(&mqtt, AIO
 // define the SS for SD card
 #define chipSelect 53
 
-// construct the BMP280
-Adafruit_BMP280 bmp;
+// construct the MCP9808
+Adafruit_MCP9808 tempsensor = Adafruit_MCP9808();
+
+// construct the MPRLS
+Adafruit_MPRLS mpr = Adafruit_MPRLS(-1, -1);      // Adafruit_MPRLS(RESET_PIN, EOC_PIN)
 
 // construct the JSN-SR04
-#define trigPin 33
-#define echoPin 32
+#define trigPin 15      //47
+#define echoPin 14      //46
 NewPing sonar(trigPin, echoPin);
 
 // define the pressure sensor pin
@@ -105,7 +109,7 @@ float sea_level = 0;
 
 void setup() {
   Serial.begin(9600);
-  Serial.println(F("*** Executing WHS_v1.2.ino ***"));
+  Serial.println(F("*** Executing WHS_v2.0.ino ***"));
 
   // configure the led
   pinMode(redLed, OUTPUT);
@@ -132,6 +136,18 @@ void setup() {
   // check if SD card began
   if (!SD.begin(chipSelect)) {
     Serial.println("SD card not found");
+    while (1);
+  }
+
+  // check if MPRLS began 
+  if(! mpr.begin()) {
+    Serial.println(F("MPRLS not found"));
+    while(1);
+  }
+
+  tempsensor.wake();                                  // wake up the MCP9808
+  if (!tempsensor.begin(0x19)) {
+    Serial.println("MCP9808 not found");
     while (1);
   }
 
@@ -180,14 +196,6 @@ void setup() {
   mqtt.subscribe(&feed_sampling_rate);
   mqtt.subscribe(&feed_sea_level);
   mqtt.subscribe(&feed_update_gps_sub);
-
-  // begin the BMP280
-  bmp.begin(0x76);      // bmp.begin(I2C_address)
-  bmp.setSampling(Adafruit_BMP280::MODE_NORMAL,     /* Operating Mode. */
-                  Adafruit_BMP280::SAMPLING_X2,     /* Temp. oversampling */
-                  Adafruit_BMP280::SAMPLING_X16,    /* Pressure oversampling */
-                  Adafruit_BMP280::FILTER_X16,      /* Filtering. */
-                  Adafruit_BMP280::STANDBY_MS_500); /* Standby time. */
 
   // connect to cell network
   while (!netStatus()) {
@@ -278,21 +286,19 @@ void loop() {
   // find the time at which we are logging all this data
   time_t t = RTC.get();
 
-  // take temperature data
-  float celsius = bmp.readTemperature();
-  Serial.print(F("Temperature = "));
-  Serial.print(celsius);
-  Serial.println(" *C");
+  // take package temperature data
+  tempsensor.wake(); 
+  float tempC = tempsensor.readTempC();
+  Serial.print("Package temperature: "); Serial.print(tempC); Serial.print("*C\t"); 
   char tempBuff[6];
-
-  dtostrf(celsius, 1, 2, tempBuff);
+  dtostrf(tempC, 1, 2, tempBuff);
+  Serial.println("Shutting down the MCP9808...");
+  tempsensor.shutdown();                                // In this mode the MCP9808 draws only about 0.1uA
 
   // take ambient pressure data
-  float pressure = bmp.readPressure();
-  Serial.print(F("Pressure = "));
-  Serial.print(pressure);
-  Serial.println(" Pa");
-  char pressBuff[10];
+  float pressure = mpr.readPressure();
+  Serial.print(F("Pressure: ")); Serial.print(pressure / 68.947572932); Serial.println(F(" psi"));
+  char pressBuff[6];
   dtostrf(pressure, 1, 2, pressBuff);
 
   // take stage data
@@ -365,7 +371,6 @@ void loop() {
     file.print(" ");
 
     // write the data
-    file.print(celsius); file.print(" ");
     file.print(pressure); file.print(" ");
     file.print(distance); file.print(" ");
     file.print(feet_of_water); file.print(" ");
@@ -431,8 +436,8 @@ void loop() {
     MQTT_publish_checkSuccess(feed_location, locBuff);
     new_loc = false;
   }
-  MQTT_publish_checkSuccess(feed_stage, stageBuff);
   MQTT_publish_checkSuccess(feed_temp, tempBuff);
+  MQTT_publish_checkSuccess(feed_stage, stageBuff);
   MQTT_publish_checkSuccess(feed_pressure, pressBuff);
   MQTT_publish_checkSuccess(feed_pts, ptsBuff);
 
@@ -562,7 +567,10 @@ bool netStatus() {
   if (n == 4) Serial.println(F("Unknown"));
   if (n == 5) Serial.println(F("Registered roaming"));
 
-  if (!(n == 1 || n == 5)) return false;
+  if (!(n == 1 || n == 5)) {
+    return false;
+    digitalWrite(blueLed, LOW);
+  }
   else return true;
 }
 
