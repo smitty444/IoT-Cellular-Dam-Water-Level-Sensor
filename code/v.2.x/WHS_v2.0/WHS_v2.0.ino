@@ -89,8 +89,8 @@ Adafruit_MCP9808 tempsensor = Adafruit_MCP9808();
 Adafruit_MPRLS mpr = Adafruit_MPRLS(-1, -1);      // Adafruit_MPRLS(RESET_PIN, EOC_PIN)
 
 // construct the JSN-SR04
-#define trigPin 15      //47
-#define echoPin 14      //46
+#define trigPin 47
+#define echoPin 46
 NewPing sonar(trigPin, echoPin);
 
 // define the pressure sensor pin
@@ -460,12 +460,21 @@ void loop() {
 
   t = RTC.get();
 
+  // uncomment for seconds
   if (second(t) < 60 - sampling_rate) {
     RTC.setAlarm(ALM1_MATCH_SECONDS, second(t) + sampling_rate, 0, 0, 0);
   }
   else {
     RTC.setAlarm(ALM1_MATCH_SECONDS, second(t) - 60 + sampling_rate, 0, 0, 0);
   }
+
+//  // uncomment for minutes
+//  if (minute(t) < 60 - sampling_rate) {
+//    RTC.setAlarm(ALM1_MATCH_MINUTES, 0, minute(t) + sampling_rate, 0, 0);
+//  }
+//  else {
+//    RTC.setAlarm(ALM1_MATCH_MINUTES, 0, minute(t) - 60 + sampling_rate, 0, 0);
+//  }
 
   RTC.alarm(ALARM_1);
 
