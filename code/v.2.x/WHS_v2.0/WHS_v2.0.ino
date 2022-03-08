@@ -190,12 +190,14 @@ void setup() {
   }
   Serial.println(F("Enabled data!"));
 
-
   // subscribe to the subscription feeds
   mqtt.subscribe(&feed_deploy);
   mqtt.subscribe(&feed_sampling_rate);
   mqtt.subscribe(&feed_sea_level);
   mqtt.subscribe(&feed_update_gps_sub);
+
+  // set the keepalive interval in seconds
+  mqtt.setKeepAliveInterval(20);
 
   // connect to cell network
   while (!netStatus()) {
@@ -460,23 +462,25 @@ void loop() {
 
   t = RTC.get();
 
-  // uncomment for seconds
-  if (second(t) < 60 - sampling_rate) {
-    RTC.setAlarm(ALM1_MATCH_SECONDS, second(t) + sampling_rate, 0, 0, 0);
-  }
-  else {
-    RTC.setAlarm(ALM1_MATCH_SECONDS, second(t) - 60 + sampling_rate, 0, 0, 0);
-  }
-
-//  // uncomment for minutes
-//  if (minute(t) < 60 - sampling_rate) {
-//    RTC.setAlarm(ALM1_MATCH_MINUTES, 0, minute(t) + sampling_rate, 0, 0);
+//  // uncomment for seconds
+//  if (second(t) < 60 - sampling_rate) {
+//    RTC.setAlarm(ALM1_MATCH_SECONDS, second(t) + sampling_rate, 0, 0, 0);
 //  }
 //  else {
-//    RTC.setAlarm(ALM1_MATCH_MINUTES, 0, minute(t) - 60 + sampling_rate, 0, 0);
+//    RTC.setAlarm(ALM1_MATCH_SECONDS, second(t) - 60 + sampling_rate, 0, 0, 0);
 //  }
 
+  // uncomment for minutes
+  if (minute(t) < 60 - sampling_rate) {
+    RTC.setAlarm(ALM1_MATCH_MINUTES, 0, minute(t) + sampling_rate, 0, 0);
+  }
+  else {
+    RTC.setAlarm(ALM1_MATCH_MINUTES, 0, minute(t) - 60 + sampling_rate, 0, 0);
+  }
+
   RTC.alarm(ALARM_1);
+
+  mqtt.ping();
 
   goSleep();
 }
@@ -486,7 +490,7 @@ void goSleep() {
   Serial.println("Going to sleep...");
   delay(100);
 
-  fona.write("AT+CSCLK=1");
+  fona.println("AT+CSCLK=1");
   if(fona.available()) {
     Serial.println(fona.read());
   }
@@ -509,7 +513,7 @@ void wakeUp() {
   digitalWrite(FONA_DTR, LOW);
   delay(100);
 
-  fona.write("AT+CSCLK=0");
+  fona.println("AT+CSCLK=0");
   if(fona.available()) {
     Serial.println(fona.read());
   }
