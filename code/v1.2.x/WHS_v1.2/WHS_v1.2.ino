@@ -164,6 +164,8 @@ void setup() {
 
   fona.setNetworkSettings(F("hologram"));   // sets APN as 'hologram', used with Hologram SIM card
 
+  mqtt.setKeepAliveInterval(600);
+
   //fona.set_eDRX()
 
   // first disable data
@@ -441,13 +443,19 @@ void loop() {
   // publish data to Adafruit IO
   if (new_loc == true) {
     MQTT_publish_checkSuccess(feed_location, locBuff);
+    delay(100);
     new_loc = false;
   }
   MQTT_publish_checkSuccess(feed_stage, stageBuff);
+  delay(100);
   MQTT_publish_checkSuccess(feed_temp, tempBuff);
+  delay(100);
   MQTT_publish_checkSuccess(feed_pressure, pressBuff);
+  delay(100);
   MQTT_publish_checkSuccess(feed_pts, ptsBuff);
+  delay(100);
   MQTT_publish_checkSuccess(feed_contact, contactBuff);
+  delay(100);
 
   // reassign the sampling rate
   if (new_time == true) {
@@ -469,12 +477,12 @@ void loop() {
   t = RTC.get();
 
   // uncomment to have alarm units in seconds
-  if (second(t) < 60 - sampling_rate) {
-    RTC.setAlarm(ALM1_MATCH_SECONDS, second(t) + sampling_rate, 0, 0, 0);
-  }
-  else {
-    RTC.setAlarm(ALM1_MATCH_SECONDS, second(t) - 60 + sampling_rate, 0, 0, 0);
-  }
+//  if (second(t) < 60 - sampling_rate) {
+//    RTC.setAlarm(ALM1_MATCH_SECONDS, second(t) + sampling_rate, 0, 0, 0);
+//  }
+//  else {
+//    RTC.setAlarm(ALM1_MATCH_SECONDS, second(t) - 60 + sampling_rate, 0, 0, 0);
+//  }
 
   // uncomment to have alarm units in minutes
   if (minute(t) < 60 - sampling_rate) {
