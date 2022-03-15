@@ -82,11 +82,11 @@ Adafruit_MQTT_Subscribe feed_update_gps_sub = Adafruit_MQTT_Subscribe(&mqtt, AIO
 // define the SS for SD card
 #define chipSelect 53
 
-//// construct the MCP9808
-//Adafruit_MCP9808 tempsensor = Adafruit_MCP9808();
-//
-//// construct the MPRLS
-//Adafruit_MPRLS mpr = Adafruit_MPRLS(-1, -1);      // Adafruit_MPRLS(RESET_PIN, EOC_PIN)
+// construct the MCP9808
+Adafruit_MCP9808 tempsensor = Adafruit_MCP9808();
+
+// construct the MPRLS
+Adafruit_MPRLS mpr = Adafruit_MPRLS(-1, -1);      // Adafruit_MPRLS(RESET_PIN, EOC_PIN)
 
 // construct the JSN-SR04
 #define trigPin 47
@@ -139,17 +139,17 @@ void setup() {
     while (1);
   }
 
-//  // check if MPRLS began 
-//  if(! mpr.begin()) {
-//    Serial.println(F("MPRLS not found"));
-//    while(1);
-//  }
-//
-//  tempsensor.wake();                                  // wake up the MCP9808
-//  if (!tempsensor.begin(0x19)) {
-//    Serial.println("MCP9808 not found");
-//    while (1);
-//  }
+  // check if MPRLS began 
+  if(! mpr.begin()) {
+    Serial.println(F("MPRLS not found"));
+    while(1);
+  }
+
+  tempsensor.wake();                                  // wake up the MCP9808
+  if (!tempsensor.begin(0x19)) {
+    Serial.println("MCP9808 not found");
+    while (1);
+  }
 
   // begin the RTC
   RTC.begin();
@@ -197,7 +197,7 @@ void setup() {
   mqtt.subscribe(&feed_update_gps_sub);
 
   // set the keepalive interval in seconds
-  mqtt.setKeepAliveInterval(20);
+//  mqtt.setKeepAliveInterval(20);
 
   // connect to cell network
   while (!netStatus()) {
@@ -288,20 +288,20 @@ void loop() {
   // find the time at which we are logging all this data
   time_t t = RTC.get();
 
-//  // take package temperature data
-//  tempsensor.wake(); 
-//  float tempC = tempsensor.readTempC();
-//  Serial.print("Package temperature: "); Serial.print(tempC); Serial.print("*C\t"); 
-//  char tempBuff[6];
-//  dtostrf(tempC, 1, 2, tempBuff);
-//  Serial.println("Shutting down the MCP9808...");
-//  tempsensor.shutdown();                                // In this mode the MCP9808 draws only about 0.1uA
-//
-//  // take ambient pressure data
-//  float pressure = mpr.readPressure() / 68.947572932;
-//  Serial.print(F("Pressure: ")); Serial.print(pressure); Serial.println(F(" psi"));
-//  char pressBuff[6];
-//  dtostrf(pressure, 1, 2, pressBuff);
+  // take package temperature data
+  tempsensor.wake(); 
+  float tempC = tempsensor.readTempC();
+  Serial.print("Package temperature: "); Serial.print(tempC); Serial.print("*C\t"); 
+  char tempBuff[6];
+  dtostrf(tempC, 1, 2, tempBuff);
+  Serial.println("Shutting down the MCP9808...");
+  tempsensor.shutdown();                                // In this mode the MCP9808 draws only about 0.1uA
+
+  // take ambient pressure data
+  float pressure = mpr.readPressure() / 68.947572932;
+  Serial.print(F("Pressure: ")); Serial.print(pressure); Serial.println(F(" psi"));
+  char pressBuff[6];
+  dtostrf(pressure, 1, 2, pressBuff);
 
   // take stage data
   float distance = 0;
@@ -438,9 +438,9 @@ void loop() {
     MQTT_publish_checkSuccess(feed_location, locBuff);
     new_loc = false;
   }
-//  MQTT_publish_checkSuccess(feed_temp, tempBuff);
+  MQTT_publish_checkSuccess(feed_temp, tempBuff);
   MQTT_publish_checkSuccess(feed_stage, stageBuff);
-//  MQTT_publish_checkSuccess(feed_pressure, pressBuff);
+  MQTT_publish_checkSuccess(feed_pressure, pressBuff);
   MQTT_publish_checkSuccess(feed_pts, ptsBuff);
 
   // reassign the sampling rate
