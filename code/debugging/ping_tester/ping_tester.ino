@@ -1,7 +1,7 @@
 #include <NewPing.h>
 
-#define trigPin 3
-#define echoPin 4
+#define trigPin 47
+#define echoPin 46
 
 NewPing sonar(trigPin, echoPin);
 float initial_distance = 0;
