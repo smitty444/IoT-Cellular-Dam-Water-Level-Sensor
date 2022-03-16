@@ -72,6 +72,7 @@ Adafruit_MQTT_Publish feed_pressure = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME 
 Adafruit_MQTT_Publish feed_stage = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/feeds/stage");
 Adafruit_MQTT_Publish feed_pts = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/feeds/pressure-to-stage");
 Adafruit_MQTT_Publish feed_update_gps_pub = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/feeds/update-gps");
+Adafruit_MQTT_Publish feed_fona_lipo = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/feeds/lipo-battery");
 
 // THE SUBSCRIBING FEEDS -----------------------------------------------------------------------------
 Adafruit_MQTT_Subscribe feed_deploy = Adafruit_MQTT_Subscribe(&mqtt, AIO_USERNAME "/feeds/deploy");
@@ -109,7 +110,7 @@ float sea_level = 0;
 
 void setup() {
   Serial.begin(9600);
-  Serial.println(F("*** Executing WHS_v2.0.1.ino ***"));
+  Serial.println(F("*** Executing WHS_v2.0.ino ***"));
 
   // configure the led
   pinMode(redLed, OUTPUT);
@@ -197,7 +198,7 @@ void setup() {
   mqtt.subscribe(&feed_update_gps_sub);
 
   // set the keepalive interval in seconds
-  mqtt.setKeepAliveInterval(200);
+  mqtt.setKeepAliveInterval(600);
 
   // connect to cell network
   while (!netStatus()) {
@@ -326,6 +327,16 @@ void loop() {
   char ptsBuff[7];
   dtostrf(feet_of_water, 1, 2, ptsBuff);
 
+  // take fona lipo battery data
+  uint16_t vbat;
+  if (! fona.getBattVoltage(&vbat)) {
+    Serial.println(F("Failed to read Batt"));
+  } else {
+    Serial.print(F("VBat = ")); Serial.print(vbat); Serial.println(F(" mV"));
+  }
+  char lipoBuff[6];
+  sprintf(lipoBuff, "%u", vbat);
+
   Serial.println(F("---------------------"));
 
   // connect to MQTT
@@ -373,7 +384,7 @@ void loop() {
     file.print(" ");
 
     // write the data
-//    file.print(pressure); file.print(" ");
+    file.print(pressure); file.print(" ");
     file.print(distance); file.print(" ");
     file.print(feet_of_water); file.print(" ");
     file.println("");
@@ -442,6 +453,7 @@ void loop() {
   MQTT_publish_checkSuccess(feed_stage, stageBuff);
   MQTT_publish_checkSuccess(feed_pressure, pressBuff);
   MQTT_publish_checkSuccess(feed_pts, ptsBuff);
+  MQTT_publish_checkSuccess(feed_fona_lipo, lipoBuff);
 
   // reassign the sampling rate
   if (new_time == true) {
@@ -462,21 +474,21 @@ void loop() {
 
   t = RTC.get();
 
-  // uncomment for seconds
-  if (second(t) < 60 - sampling_rate) {
-    RTC.setAlarm(ALM1_MATCH_SECONDS, second(t) + sampling_rate, 0, 0, 0);
-  }
-  else {
-    RTC.setAlarm(ALM1_MATCH_SECONDS, second(t) - 60 + sampling_rate, 0, 0, 0);
-  }
-
-//  // uncomment for minutes
-//  if (minute(t) < 60 - sampling_rate) {
-//    RTC.setAlarm(ALM1_MATCH_MINUTES, 0, minute(t) + sampling_rate, 0, 0);
+//  // uncomment for seconds
+//  if (second(t) < 60 - sampling_rate) {
+//    RTC.setAlarm(ALM1_MATCH_SECONDS, second(t) + sampling_rate, 0, 0, 0);
 //  }
 //  else {
-//    RTC.setAlarm(ALM1_MATCH_MINUTES, 0, minute(t) - 60 + sampling_rate, 0, 0);
+//    RTC.setAlarm(ALM1_MATCH_SECONDS, second(t) - 60 + sampling_rate, 0, 0, 0);
 //  }
+
+  // uncomment for minutes
+  if (minute(t) < 60 - sampling_rate) {
+    RTC.setAlarm(ALM1_MATCH_MINUTES, 0, minute(t) + sampling_rate, 0, 0);
+  }
+  else {
+    RTC.setAlarm(ALM1_MATCH_MINUTES, 0, minute(t) - 60 + sampling_rate, 0, 0);
+  }
 
   RTC.alarm(ALARM_1);
 
@@ -513,7 +525,7 @@ void wakeUp() {
   detachInterrupt(interrupt);
 
   digitalWrite(FONA_DTR, LOW);
-  delay(300);
+  delay(500);
 
 //  fona.println("AT+CSCLK=0");
 //  if(fona.available()) {
