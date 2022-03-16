@@ -109,7 +109,7 @@ float sea_level = 0;
 
 void setup() {
   Serial.begin(9600);
-  Serial.println(F("*** Executing WHS_v2.0.ino ***"));
+  Serial.println(F("*** Executing WHS_v2.0.1.ino ***"));
 
   // configure the led
   pinMode(redLed, OUTPUT);
@@ -168,7 +168,7 @@ void setup() {
   digitalWrite(FONA_RST, HIGH);             // reset is default high
 
   pinMode(FONA_DTR, OUTPUT);
-  digitalWrite(FONA_DTR, HIGH);
+  digitalWrite(FONA_DTR, LOW);              // initialize to LOW so that if clock is high fona will be awake
 
   fona.powerOn(FONA_PWRKEY);                // power on fona by pulsing power key
 
@@ -197,7 +197,7 @@ void setup() {
   mqtt.subscribe(&feed_update_gps_sub);
 
   // set the keepalive interval in seconds
-//  mqtt.setKeepAliveInterval(20);
+  mqtt.setKeepAliveInterval(200);
 
   // connect to cell network
   while (!netStatus()) {
@@ -462,25 +462,25 @@ void loop() {
 
   t = RTC.get();
 
-//  // uncomment for seconds
-//  if (second(t) < 60 - sampling_rate) {
-//    RTC.setAlarm(ALM1_MATCH_SECONDS, second(t) + sampling_rate, 0, 0, 0);
-//  }
-//  else {
-//    RTC.setAlarm(ALM1_MATCH_SECONDS, second(t) - 60 + sampling_rate, 0, 0, 0);
-//  }
-
-  // uncomment for minutes
-  if (minute(t) < 60 - sampling_rate) {
-    RTC.setAlarm(ALM1_MATCH_MINUTES, 0, minute(t) + sampling_rate, 0, 0);
+  // uncomment for seconds
+  if (second(t) < 60 - sampling_rate) {
+    RTC.setAlarm(ALM1_MATCH_SECONDS, second(t) + sampling_rate, 0, 0, 0);
   }
   else {
-    RTC.setAlarm(ALM1_MATCH_MINUTES, 0, minute(t) - 60 + sampling_rate, 0, 0);
+    RTC.setAlarm(ALM1_MATCH_SECONDS, second(t) - 60 + sampling_rate, 0, 0, 0);
   }
+
+//  // uncomment for minutes
+//  if (minute(t) < 60 - sampling_rate) {
+//    RTC.setAlarm(ALM1_MATCH_MINUTES, 0, minute(t) + sampling_rate, 0, 0);
+//  }
+//  else {
+//    RTC.setAlarm(ALM1_MATCH_MINUTES, 0, minute(t) - 60 + sampling_rate, 0, 0);
+//  }
 
   RTC.alarm(ALARM_1);
 
-  mqtt.ping();
+//  mqtt.ping();
 
   goSleep();
 }
@@ -494,6 +494,8 @@ void goSleep() {
   if(fona.available()) {
     Serial.println(fona.read());
   }
+
+  delay(500);
 
   digitalWrite(FONA_DTR, HIGH);
 
@@ -511,14 +513,14 @@ void wakeUp() {
   detachInterrupt(interrupt);
 
   digitalWrite(FONA_DTR, LOW);
-  delay(100);
+  delay(300);
 
-  fona.println("AT+CSCLK=0");
-  if(fona.available()) {
-    Serial.println(fona.read());
-  }
-
-  delay(100);
+//  fona.println("AT+CSCLK=0");
+//  if(fona.available()) {
+//    Serial.println(fona.read());
+//  }
+//
+//  delay(100);
 }
 
 
