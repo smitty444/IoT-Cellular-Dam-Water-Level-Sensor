@@ -30,7 +30,8 @@ void setup() {
 }
 
 void loop() {
-  sampling_rate = value;
+ // sampling_rate = value;
+  int remainder;
 
   // check if our sampling rate is slower than the server timeout
   if (sampling_rate > MQTT_CONN_KEEPALIVE) {
@@ -38,14 +39,21 @@ void loop() {
     delay(100);
     Serial.print("Ping count: "); Serial.println(ping_count);         
     delay(100);
-    sampling_rate = sampling_rate % MQTT_CONN_KEEPALIVE;              // alarm frequency between last ping and next data collection cycle
+    remainder = sampling_rate % MQTT_CONN_KEEPALIVE;              // alarm frequency between last ping and next data collection cycle
     delay(100);
-    Serial.print("Sampling rate: "); Serial.println(sampling_rate);
+    Serial.print("Sampling rate: "); Serial.println(remainder);
     delay(100);
+    if (remainder == 0) {
+      ping_count--;
+      remainder = MQTT_CONN_KEEPALIVE;
+    }
     while (ping_count > 0) {     // only run pinging functions when we do not need to sample data
       pingSleep();
       ping_count--;
     }
+  }
+  else {
+    remainder = sampling_rate;
   }
 
   // find the current time
@@ -61,11 +69,11 @@ void loop() {
   Serial.println(String(second(t)));
 
   // set an alarm for the next data collection cycle after all pinging is finished
-  if (second(t) < 60 - sampling_rate) {
-    RTC.setAlarm(ALM1_MATCH_SECONDS, second(t) + sampling_rate, 0, 0, 0);
+  if (second(t) < 60 - remainder) {
+    RTC.setAlarm(ALM1_MATCH_SECONDS, second(t) + remainder, 0, 0, 0);
   }
   else {
-    RTC.setAlarm(ALM1_MATCH_SECONDS, second(t) - 60 + sampling_rate, 0, 0, 0);
+    RTC.setAlarm(ALM1_MATCH_SECONDS, second(t) - 60 + remainder, 0, 0, 0);
   }
   RTC.alarm(ALARM_1);
 
