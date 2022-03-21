@@ -111,7 +111,7 @@ float sea_level = 0;
 
 void setup() {
   Serial.begin(9600);
-  Serial.println(F("*** Executing WHS_v2.0.ino ***"));
+  Serial.println(F("*** Executing WHS_v2.0.2.ino ***"));
 
   // configure the led
   pinMode(redLed, OUTPUT);
@@ -275,6 +275,9 @@ void setup() {
 }
 
 void loop() {
+  // wake up the fona (should be done in the interrupt function, add here too for error handling)
+  digitalWrite(FONA_DTR, LOW);
+
   // connect to cell network
   while (!netStatus()) {
     Serial.println(F("Failed to connect to cell network, retrying..."));
@@ -473,19 +476,15 @@ void loop() {
   Serial.print(F("Waiting for ")); Serial.print(sampling_rate); Serial.println(F(" minutes\r\n"));
   digitalWrite(yellowLed, LOW);
 
-  int remainder;
+  int remainder = 0;
 
   // check if our sampling rate is slower than the server timeout
   if (sampling_rate > keepAlive_mins) {
     int ping_count = sampling_rate / keepAlive_mins;      // number of times we will have to ping per sampling interval
     delay(100);
-    Serial.print("Ping count: "); Serial.println(ping_count);
-    delay(100);
     int remainder = sampling_rate % keepAlive_mins;              // alarm frequency between last ping and next data collection cycle
     delay(100);
-    Serial.print("Remaining minutes after pings: "); Serial.println(remainder);
-    delay(100);
-    if(remainder == 0) {
+    if (remainder == 0) {
       ping_count--;
       remainder = keepAlive_mins;
     }
@@ -496,25 +495,47 @@ void loop() {
         mqtt.disconnect();
       }
       ping_count--;
+      Serial.print("Ping count: "); Serial.println(ping_count);
     }
   }
   else {
     remainder = sampling_rate;
   }
+  Serial.print("Remaining minutes after pings: "); Serial.println(remainder);
 
   t = RTC.get();
-
-  // set an alarm for the next data collection cycle after pings
-  if (minute(t) < 60 - remainder) {
-    RTC.setAlarm(ALM1_MATCH_MINUTES, 0, minute(t) + remainder, 0, 0);
+  if (remainder == keepAlive_mins) {
+    int tolerance = 20;
+    // set an alarm for the next data collection cycle after pings
+    if (minute(t) < 60 - keepAlive_mins) {
+      if (second(t) < tolerance) {
+        RTC.setAlarm(ALM1_MATCH_MINUTES, 60 - tolerance, minute(t) + keepAlive_mins - 1, 0, 0);
+      }
+      else {
+        RTC.setAlarm(ALM1_MATCH_MINUTES, 0, minute(t) + keepAlive_mins, 0, 0);
+      }
+    }
+    else {
+      if (second(t) < tolerance) {
+        RTC.setAlarm(ALM1_MATCH_MINUTES, 60 - tolerance, minute(t) + keepAlive_mins - 1, 0, 0);
+      }
+      else {
+        RTC.setAlarm(ALM1_MATCH_MINUTES, 0, minute(t) - 60 + keepAlive_mins, 0, 0);
+      }
+    }
   }
   else {
-    RTC.setAlarm(ALM1_MATCH_MINUTES, 0, minute(t) - 60 + remainder, 0, 0);
+    if (minute(t) < 60 - remainder) {
+      RTC.setAlarm(ALM1_MATCH_MINUTES, 0, minute(t) + remainder, 0, 0);
+    }
+    else {
+      RTC.setAlarm(ALM1_MATCH_MINUTES, 0, minute(t) - 60 + remainder, 0, 0);
+    }
   }
 
   RTC.alarm(ALARM_1);
 
-  //delay(1000);
+  delay(1000);
 
   goSleep();
 }
@@ -527,10 +548,10 @@ void pingSleep() {
   delay(10);
 
   int tolerance = 20;     // how many seconds we want to make sure the ping has before the mqtt broker times out
-  
+
   // set an alarm for the next ping required
   if (minute(t) < 60 - keepAlive_mins) {
-    if(second(t) < tolerance) {
+    if (second(t) < tolerance) {
       RTC.setAlarm(ALM1_MATCH_MINUTES, 60 - tolerance, minute(t) + keepAlive_mins - 1, 0, 0);
     }
     else {
@@ -538,7 +559,7 @@ void pingSleep() {
     }
   }
   else {
-    if(second(t) < tolerance) {
+    if (second(t) < tolerance) {
       RTC.setAlarm(ALM1_MATCH_MINUTES, 60 - tolerance, minute(t) + keepAlive_mins - 1, 0, 0);
     }
     else {
@@ -547,6 +568,9 @@ void pingSleep() {
   }
 
   RTC.alarm(ALARM_1);
+
+  digitalWrite(FONA_DTR, HIGH);
+  delay(500);
 
   sleep_enable();
   attachInterrupt(interrupt, pingWake, LOW);        // the wake up function is set to pingWake
@@ -560,6 +584,11 @@ void pingWake() {
   delay(500);
   sleep_disable();
   detachInterrupt(interrupt);                   // clear the interrupt flag
+
+  digitalWrite(FONA_DTR, LOW);
+  delay(1000);
+
+  mqtt.ping();
 }
 
 
