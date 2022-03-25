@@ -476,13 +476,15 @@ void loop() {
   Serial.print(F("Waiting for ")); Serial.print(sampling_rate); Serial.println(F(" minutes\r\n"));
   digitalWrite(yellowLed, LOW);
 
-  int remainder = 0;
+  int remainder = sampling_rate;
 
   // check if our sampling rate is slower than the server timeout
   if (sampling_rate > keepAlive_mins) {
     int ping_count = sampling_rate / keepAlive_mins;      // number of times we will have to ping per sampling interval
+    Serial.print("Ping count: "); Serial.println(ping_count);
     delay(100);
-    int remainder = sampling_rate % keepAlive_mins;              // alarm frequency between last ping and next data collection cycle
+    remainder = sampling_rate % keepAlive_mins;              // alarm frequency between last ping and next data collection cycle
+    Serial.print("Remainder value: "); Serial.println(remainder);
     delay(100);
     if (remainder == 0) {
       ping_count--;
@@ -494,16 +496,16 @@ void loop() {
       if (!mqtt.ping()) {
         mqtt.disconnect();
       }
+      delay(1000);
       ping_count--;
       Serial.print("Ping count: "); Serial.println(ping_count);
     }
   }
-  else {
-    remainder = sampling_rate;
-  }
+  
   Serial.print("Remaining minutes after pings: "); Serial.println(remainder);
 
   t = RTC.get();
+  delay(100);
   if (remainder == keepAlive_mins) {
     int tolerance = 20;
     // set an alarm for the next data collection cycle after pings
