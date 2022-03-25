@@ -31,7 +31,7 @@ void setup() {
 
 void loop() {
  // sampling_rate = value;
-  int remainder;
+  int remainder = sampling_rate;
 
   // check if our sampling rate is slower than the server timeout
   if (sampling_rate > MQTT_CONN_KEEPALIVE) {
@@ -52,9 +52,9 @@ void loop() {
       ping_count--;
     }
   }
-  else {
-    remainder = sampling_rate;
-  }
+//  else {
+//    remainder = sampling_rate;
+//  }
 
   // find the current time
   time_t t = RTC.get();
@@ -123,19 +123,19 @@ void pingWake() {
   detachInterrupt(interrupt);                   // clear the interrupt flag
 
 // NOTE: a new time stamp is too computationally heavy for an ISR function
-//  time_t t = RTC.get();
-//  delay(100);
-//
-//  Serial.print("Ping time: ");
-//  delay(50);
-//  Serial.print(String(hour(t)));
-//  Serial.print(":");
-//  delay(50);
-//  Serial.print(String(minute(t)));
-//  Serial.print(":");
-//  delay(50);
-//  Serial.println(String(second(t)));
-//  delay(50);
+    //  time_t t = RTC.get();
+    //  delay(100);
+    //
+    //  Serial.print("Ping time: ");
+    //  delay(50);
+    //  Serial.print(String(hour(t)));
+    //  Serial.print(":");
+    //  delay(50);
+    //  Serial.print(String(minute(t)));
+    //  Serial.print(":");
+    //  delay(50);
+    //  Serial.println(String(second(t)));
+    //  delay(50);
 
   // ping the MQTT broker
   //mqtt.ping()
