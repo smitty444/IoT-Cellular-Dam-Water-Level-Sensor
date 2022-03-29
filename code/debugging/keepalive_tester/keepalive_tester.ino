@@ -122,7 +122,7 @@ void pingWake() {
   sleep_disable();
   detachInterrupt(interrupt);                   // clear the interrupt flag
 
-// NOTE: a new time stamp is too computationally heavy for an ISR function
+// NOTE: a new time stamp is too computationally slow for an ISR function
     //  time_t t = RTC.get();
     //  delay(100);
     //
