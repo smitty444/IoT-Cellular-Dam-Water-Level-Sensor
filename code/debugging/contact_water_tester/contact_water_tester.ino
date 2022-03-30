@@ -1,5 +1,5 @@
 const int LED = 13;
-const int sensorPin = 41;
+const int sensorPin = A10;
 
 void setup() {
   Serial.begin(9600);
