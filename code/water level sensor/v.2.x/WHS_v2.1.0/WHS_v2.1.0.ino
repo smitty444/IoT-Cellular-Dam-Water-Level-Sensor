@@ -46,8 +46,8 @@
 #define whiteLed 25                    // GPS error
 #define interrupt 5                    // interrupt pin for RTC (NOTE: 5 is INT5, the hardware interrupt that is on pin 18)
 
-//int sampling_rate = 15;                // initialize the delay between loops. This can be changed with subscribe
-int remainder = 15;                // initialize the delay between loops. This can be changed with subscribe
+int sampling_rate = 4;                // initialize the delay between loops. This can be changed with subscribe
+//int remainder = 15;                // initialize the delay between loops. This can be changed with subscribe
 const int keepAlive_mins = round(MQTT_CONN_KEEPALIVE / 60);
 
 // send AT commands via fona's software serial
@@ -67,20 +67,39 @@ Adafruit_FONA_LTE fona = Adafruit_FONA_LTE();
 // pass in fona class and server details to mqtt class
 Adafruit_MQTT_FONA mqtt(&fona, AIO_SERVER, AIO_SERVERPORT, AIO_USERNAME, AIO_KEY);
 
+//************************************ UNCOMMENT FOR FEEDS BELONGING TO SENSOR 1 ************************************************************
+//// THE PUBLISHING FEEDS ------------------------------------------------------------------------------
+//Adafruit_MQTT_Publish feed_location = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/feeds/location/csv");
+//Adafruit_MQTT_Publish feed_temp = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/feeds/temperature");
+//Adafruit_MQTT_Publish feed_pressure = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/feeds/pressure");
+//Adafruit_MQTT_Publish feed_stage = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/feeds/stage");
+//Adafruit_MQTT_Publish feed_pts = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/feeds/pressure-to-stage");
+//Adafruit_MQTT_Publish feed_update_gps_pub = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/feeds/update-gps");
+//Adafruit_MQTT_Publish feed_fona_lipo = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/feeds/lipo-battery");
+//
+//// THE SUBSCRIBING FEEDS -----------------------------------------------------------------------------
+//Adafruit_MQTT_Subscribe feed_deploy = Adafruit_MQTT_Subscribe(&mqtt, AIO_USERNAME "/feeds/deploy");
+//Adafruit_MQTT_Subscribe feed_sampling_rate = Adafruit_MQTT_Subscribe(&mqtt, AIO_USERNAME "/feeds/sampling-rate");
+//Adafruit_MQTT_Subscribe feed_sea_level = Adafruit_MQTT_Subscribe(&mqtt, AIO_USERNAME "/feeds/initial-sea-level");
+//Adafruit_MQTT_Subscribe feed_update_gps_sub = Adafruit_MQTT_Subscribe(&mqtt, AIO_USERNAME "/feeds/update-gps");
+
+
+//************************************ UNCOMMENT FOR FEEDS BELONGING TO SENSOR 2 ************************************************************
 // THE PUBLISHING FEEDS ------------------------------------------------------------------------------
-Adafruit_MQTT_Publish feed_location = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/feeds/location/csv");
-Adafruit_MQTT_Publish feed_temp = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/feeds/temperature");
-Adafruit_MQTT_Publish feed_pressure = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/feeds/pressure");
-Adafruit_MQTT_Publish feed_stage = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/feeds/stage");
-Adafruit_MQTT_Publish feed_pts = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/feeds/pressure-to-stage");
-Adafruit_MQTT_Publish feed_update_gps_pub = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/feeds/update-gps");
-Adafruit_MQTT_Publish feed_fona_lipo = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/feeds/lipo-battery");
+Adafruit_MQTT_Publish feed_location = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/feeds/whs-2.location/csv");
+Adafruit_MQTT_Publish feed_temp = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/feeds/whs-2.temperature");
+Adafruit_MQTT_Publish feed_pressure = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/feeds/whs-2.pressure");
+Adafruit_MQTT_Publish feed_stage = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/feeds/whs-2.stage");
+Adafruit_MQTT_Publish feed_pts = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/feeds/whs-2.pressure-to-stage");
+Adafruit_MQTT_Publish feed_update_gps_pub = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/feeds/whs-2.update-gps");
+Adafruit_MQTT_Publish feed_fona_lipo = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/feeds/whs-2.lipo-battery");
 
 // THE SUBSCRIBING FEEDS -----------------------------------------------------------------------------
-Adafruit_MQTT_Subscribe feed_deploy = Adafruit_MQTT_Subscribe(&mqtt, AIO_USERNAME "/feeds/deploy");
-Adafruit_MQTT_Subscribe feed_sampling_rate = Adafruit_MQTT_Subscribe(&mqtt, AIO_USERNAME "/feeds/sampling-rate");
-Adafruit_MQTT_Subscribe feed_sea_level = Adafruit_MQTT_Subscribe(&mqtt, AIO_USERNAME "/feeds/initial-sea-level");
-Adafruit_MQTT_Subscribe feed_update_gps_sub = Adafruit_MQTT_Subscribe(&mqtt, AIO_USERNAME "/feeds/update-gps");
+Adafruit_MQTT_Subscribe feed_deploy = Adafruit_MQTT_Subscribe(&mqtt, AIO_USERNAME "/feeds/whs-2.deploy");
+Adafruit_MQTT_Subscribe feed_sampling_rate = Adafruit_MQTT_Subscribe(&mqtt, AIO_USERNAME "/feeds/whs-2.sampling-rate");
+Adafruit_MQTT_Subscribe feed_sea_level = Adafruit_MQTT_Subscribe(&mqtt, AIO_USERNAME "/feeds/whs-2.initial-sea-level");
+Adafruit_MQTT_Subscribe feed_update_gps_sub = Adafruit_MQTT_Subscribe(&mqtt, AIO_USERNAME "/feeds/whs-2.update-gps");
+
 
 // define the SS for SD card
 #define chipSelect 53
@@ -106,7 +125,7 @@ float prevFirstDeriv = -1;
 const int s = 5;                    // max number of indicies in the array
 int i = 0;                          // index # of array                   
 float prevTimeInterval = 10;        // initialize previous time interval for calculation
-float bottomLimit = 5;              // fastest allowed sampling rate
+float bottomLimit = 4;              // fastest allowed sampling rate
 float topLimit = 20;                // slowest allowed sampling rate
 
 // some global variables
@@ -530,71 +549,71 @@ void loop() {
     printArray(deltas);
     delay(2000);
 
-//  int remainder = sampling_rate;
+  int remainder = sampling_rate;
 
-//  // check if our sampling rate is slower than the server timeout
-//  if (sampling_rate > keepAlive_mins) {
-//    int ping_count = sampling_rate / keepAlive_mins;      // number of times we will have to ping per sampling interval
-//    Serial.print("Ping count: "); Serial.println(ping_count);
-//    delay(100);
-//    remainder = sampling_rate % keepAlive_mins;              // alarm frequency between last ping and next data collection cycle
-//    Serial.print("Remainder value: "); Serial.println(remainder);
-//    delay(100);
-//    if (remainder == 0) {
-//      ping_count--;
-//      remainder = keepAlive_mins;
-//    }
-//    while (ping_count > 0) {     // only run pinging functions when we do not need to sample data
-//      pingSleep();
-//      // ping the MQTT broker
-//      if (!mqtt.ping()) {
-//        mqtt.disconnect();
-//      }
-//      delay(1000);
-//      ping_count--;
-//      Serial.print("Ping count: "); Serial.println(ping_count);
-//    }
-//  }
-//  
-//  Serial.print("Remaining minutes after pings: "); Serial.println(remainder);
+  // check if our sampling rate is slower than the server timeout
+  if (sampling_rate > keepAlive_mins) {
+    int ping_count = sampling_rate / keepAlive_mins;      // number of times we will have to ping per sampling interval
+    Serial.print("Ping count: "); Serial.println(ping_count);
+    delay(100);
+    remainder = sampling_rate % keepAlive_mins;              // alarm frequency between last ping and next data collection cycle
+    Serial.print("Remainder value: "); Serial.println(remainder);
+    delay(100);
+    if (remainder == 0) {
+      ping_count--;
+      remainder = keepAlive_mins;
+    }
+    while (ping_count > 0) {     // only run pinging functions when we do not need to sample data
+      pingSleep();
+      // ping the MQTT broker
+      if (!mqtt.ping()) {
+        mqtt.disconnect();
+      }
+      delay(1000);
+      ping_count--;
+      Serial.print("Ping count: "); Serial.println(ping_count);
+    }
+  }
+  
+  Serial.print("Remaining minutes after pings: "); Serial.println(remainder);
 
   t = RTC.get();
   delay(100);
-//  if (remainder == keepAlive_mins) {
-//    int tolerance = 20;
-//    // set an alarm for the next data collection cycle after pings
-//    if (minute(t) < 60 - keepAlive_mins) {
-//      if (second(t) < tolerance) {
-//        RTC.setAlarm(ALM1_MATCH_MINUTES, 60 - tolerance, minute(t) + keepAlive_mins - 1, 0, 0);
-//      }
-//      else {
-//        RTC.setAlarm(ALM1_MATCH_MINUTES, 0, minute(t) + keepAlive_mins, 0, 0);
-//      }
-//    }
-//    else {
-//      if (second(t) < tolerance) {
-//        RTC.setAlarm(ALM1_MATCH_MINUTES, 60 - tolerance, minute(t) + keepAlive_mins - 1, 0, 0);
-//      }
-//      else {
-//        RTC.setAlarm(ALM1_MATCH_MINUTES, 0, minute(t) - 60 + keepAlive_mins, 0, 0);
-//      }
-//    }
-//  }
-//  else {
-//    if (minute(t) < 60 - remainder) {
-//      RTC.setAlarm(ALM1_MATCH_MINUTES, 0, minute(t) + remainder, 0, 0);
-//    }
-//    else {
-//      RTC.setAlarm(ALM1_MATCH_MINUTES, 0, minute(t) - 60 + remainder, 0, 0);
-//    }
-//  }
-
-    if (second(t) < 60 - remainder) {
-      RTC.setAlarm(ALM1_MATCH_SECONDS, second(t) + remainder, 0, 0, 0);
+  if (remainder == keepAlive_mins) {
+    int tolerance = 20;
+    // set an alarm for the next data collection cycle after pings
+    if (minute(t) < 60 - keepAlive_mins) {
+      if (second(t) < tolerance) {
+        RTC.setAlarm(ALM1_MATCH_MINUTES, 60 - tolerance, minute(t) + keepAlive_mins - 1, 0, 0);
+      }
+      else {
+        RTC.setAlarm(ALM1_MATCH_MINUTES, 0, minute(t) + keepAlive_mins, 0, 0);
+      }
     }
     else {
-      RTC.setAlarm(ALM1_MATCH_SECONDS, second(t) - 60 + remainder, 0, 0, 0);
+      if (second(t) < tolerance) {
+        RTC.setAlarm(ALM1_MATCH_MINUTES, 60 - tolerance, minute(t) + keepAlive_mins - 1, 0, 0);
+      }
+      else {
+        RTC.setAlarm(ALM1_MATCH_MINUTES, 0, minute(t) - 60 + keepAlive_mins, 0, 0);
+      }
     }
+  }
+  else {
+    if (minute(t) < 60 - remainder) {
+      RTC.setAlarm(ALM1_MATCH_MINUTES, 0, minute(t) + remainder, 0, 0);
+    }
+    else {
+      RTC.setAlarm(ALM1_MATCH_MINUTES, 0, minute(t) - 60 + remainder, 0, 0);
+    }
+  }
+
+//    if (second(t) < 60 - remainder) {
+//      RTC.setAlarm(ALM1_MATCH_SECONDS, second(t) + remainder, 0, 0, 0);
+//    }
+//    else {
+//      RTC.setAlarm(ALM1_MATCH_SECONDS, second(t) - 60 + remainder, 0, 0, 0);
+//    }
 
   RTC.alarm(ALARM_1);
 
@@ -615,30 +634,30 @@ void pingSleep() {
 
   int tolerance = 20;     // how many seconds we want to make sure the ping has before the mqtt broker times out
 
-//  // set an alarm for the next ping required
-//  if (minute(t) < 60 - keepAlive_mins) {
-//    if (second(t) < tolerance) {
-//      RTC.setAlarm(ALM1_MATCH_MINUTES, 60 - tolerance, minute(t) + keepAlive_mins - 1, 0, 0);
-//    }
-//    else {
-//      RTC.setAlarm(ALM1_MATCH_MINUTES, 0, minute(t) + keepAlive_mins, 0, 0);
-//    }
-//  }
-//  else {
-//    if (second(t) < tolerance) {
-//      RTC.setAlarm(ALM1_MATCH_MINUTES, 60 - tolerance, minute(t) + keepAlive_mins - 1, 0, 0);
-//    }
-//    else {
-//      RTC.setAlarm(ALM1_MATCH_MINUTES, 0, minute(t) - 60 + keepAlive_mins, 0, 0);
-//    }
-//  }
-
-  if (second(t) < 60 - keepAlive_mins) {
-      RTC.setAlarm(ALM1_MATCH_SECONDS, second(t) + keepAlive_mins, 0, 0, 0);
+  // set an alarm for the next ping required
+  if (minute(t) < 60 - keepAlive_mins) {
+    if (second(t) < tolerance) {
+      RTC.setAlarm(ALM1_MATCH_MINUTES, 60 - tolerance, minute(t) + keepAlive_mins - 1, 0, 0);
     }
     else {
-      RTC.setAlarm(ALM1_MATCH_SECONDS, second(t) - 60 + keepAlive_mins, 0, 0, 0);
+      RTC.setAlarm(ALM1_MATCH_MINUTES, 0, minute(t) + keepAlive_mins, 0, 0);
     }
+  }
+  else {
+    if (second(t) < tolerance) {
+      RTC.setAlarm(ALM1_MATCH_MINUTES, 60 - tolerance, minute(t) + keepAlive_mins - 1, 0, 0);
+    }
+    else {
+      RTC.setAlarm(ALM1_MATCH_MINUTES, 0, minute(t) - 60 + keepAlive_mins, 0, 0);
+    }
+  }
+
+//  if (second(t) < 60 - keepAlive_mins) {
+//      RTC.setAlarm(ALM1_MATCH_SECONDS, second(t) + keepAlive_mins, 0, 0, 0);
+//    }
+//    else {
+//      RTC.setAlarm(ALM1_MATCH_SECONDS, second(t) - 60 + keepAlive_mins, 0, 0, 0);
+//    }
 
   RTC.alarm(ALARM_1);
 
@@ -720,7 +739,7 @@ void changeTime(float avgSecondDeriv) {
     timeInterval = topLimit;
   }
   Serial.print("time interval: ");Serial.println(timeInterval);
-  remainder = round(timeInterval);
+  sampling_rate = round(timeInterval);
   prevTimeInterval = timeInterval;
 }
 
