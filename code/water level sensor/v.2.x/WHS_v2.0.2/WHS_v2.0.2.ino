@@ -295,7 +295,7 @@ void setup() {
 void loop() {
   // wake up the fona (should be done in the interrupt function, add here too for error handling)
   digitalWrite(FONA_DTR, LOW);
-  delay(30);
+  delay(100);
 
   // connect to cell network
   while (!netStatus()) {

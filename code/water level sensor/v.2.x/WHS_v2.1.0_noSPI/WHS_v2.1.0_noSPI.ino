@@ -141,7 +141,7 @@ float sea_level = 0;
 
 void setup() {
   Serial.begin(9600);
-  Serial.println(F("*** Executing WHS_v2.1.0.ino ***"));
+  Serial.println(F("*** Executing WHS_v2.1.0_noSPI.ino ***"));
 
   // configure the led
   pinMode(redLed, OUTPUT);
@@ -168,19 +168,19 @@ void setup() {
   // check if SD card began
   if (!SD.begin(chipSelect)) {
     Serial.println("SD card not found");
-    while (1);
+    //while (1);
   }
 
   // check if MPRLS began
   if (! mpr.begin()) {
     Serial.println(F("MPRLS not found"));
-    while (1);
+    //while (1);
   }
 
   tempsensor.wake();                                  // wake up the MCP9808
   if (!tempsensor.begin(0x19)) {
     Serial.println("MCP9808 not found");
-    while (1);
+    //while (1);
   }
 
   // begin the RTC
