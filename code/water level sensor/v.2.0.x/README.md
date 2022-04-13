@@ -15,6 +15,3 @@
 
 # WHS_v2.0.3.ino
 - add external temperature sensor
-
-# WHS_v2.1.0.ino
-- integrate DDASA
