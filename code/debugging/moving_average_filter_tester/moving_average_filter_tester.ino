@@ -19,7 +19,7 @@ void setup() {
   Serial.begin(9600);
   pinMode(trigPin, OUTPUT);
   pinMode(echoPin, INPUT);
-  Serial.println("*** Executing ping_tester.ino ***");
+  Serial.println("*** Executing moving average filter tester.ino ***");
 
 //  while (initial_distance <= 0) {
 //    initial_distance = sonar.ping_in();
