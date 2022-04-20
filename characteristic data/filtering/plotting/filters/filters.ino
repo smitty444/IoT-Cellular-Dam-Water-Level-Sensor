@@ -1,4 +1,17 @@
-
+/*
+ * Resources:
+ * 
+ * Median filter
+ *  - https://renegaderobotics.org/filtering-sensor-data/
+ *  - https://dlacko.org/blog/2016/01/24/remove-impulse-noise-from-ultrasonic/#:~:text=If%20you%20want%20to%20smooth%20the%20sensor%20data,related%20to%20the%20topic.%20Conclusion%20and%20future%20work
+ *  
+ * Moving average filter
+ *  - https://maker.pro/arduino/tutorial/how-to-clean-up-noisy-sensor-data-with-a-moving-average-filter
+ *  
+ * Kalman filter
+ *  - https://github.com/rizkymille/ultrasonic-hc-sr04-kalman-filter/blob/master/hc-sr04_kalman_filter/hc-sr04_kalman_filter.ino
+ */
+ 
 // load data from april 5 field test
 float values[102] = {166.33
                      ,
@@ -207,14 +220,59 @@ float values[102] = {166.33
 
 
 void setup() {
+  Serial.begin(9600);
   Serial.println("*** Executing filtering.ino ***");
 
 // uncomment which filter to run ------------------------------
 
-  plotMedian();
+  //plotDerivs();         // used to find a good threshold for the median filter
+  //plotMedian();
   //plotMovingAverage();
   //plotKalman();
+  plotLastReplacement();
   
+}
+
+void plotDerivs() {
+  for(int i=1; i<102; i++) {
+    Serial.println(values[i] - values[i-1]);
+  }
+}
+
+void plotLastReplacement() {
+  Serial.println("Let's use the last replacement filter!");
+  
+  float dist[102];          // you can nix the sliding window array since this is not trying to save memory
+  float tolerance = 3;      // how many feet +/- we can expect a valid reading to be within of the last reading (we dont expect it to jump 4 feet in 4 minutes)
+  float filtered; 
+  int window = 5;
+
+  // initialize the distance array with five readings
+  for (int i = 0; i < window;) {
+    dist[i] = values[i];
+    i++;
+    delay(100);
+  }
+  Serial.println("array initialized");
+
+  // cycle through the data points and apply median filter when necessary
+  for (int i = window; i < 102; i++) {
+    Serial.print(values[i]);
+    dist[i] = values[i];
+    // check if the value is within the tolerance of the previous value
+    if (dist[i] > dist[i - 1] + tolerance || dist[i] < dist[i - 1] - tolerance) {    // means the value is likely an error! apply median filter
+      filtered = dist[i - 1];     // replace the reading with the last reading
+    }
+    else {
+      filtered = dist[i];
+    }
+    Serial.print(", "); Serial.println(filtered);
+    delay(100);
+    // replace the newest index of the distance array with the filtered value
+    dist[i] = filtered;
+
+    delay(250);
+  }
 }
 
 void plotMedian() {
@@ -222,7 +280,8 @@ void plotMedian() {
 
   float dist[102];          // you can nix the sliding window array since this is not trying to save memory
   float tolerance = 3;      // how many feet +/- we can expect a valid reading to be within of the last reading (we dont expect it to jump 4 feet in 4 minutes)
-  float filtered;
+  float filtered; 
+  int window = 5;
 
   // initialize the distance array with five readings
   for (int i = 0; i < window;) {
@@ -330,7 +389,7 @@ float bubble_sort(float a, float b, float c, float d, float e, int window) {
       {
         // Swap values
         temp = sort[j];
-        sort[j = sort[j + 1];
+        sort[j] = sort[j + 1];
         sort[j + 1] = temp;
       }
     }
