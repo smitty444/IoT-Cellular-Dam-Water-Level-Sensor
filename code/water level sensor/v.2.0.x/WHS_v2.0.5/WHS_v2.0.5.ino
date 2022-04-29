@@ -48,6 +48,7 @@
 #define blueLed 22                     // network connected
 #define whiteLed 25                    // GPS error
 #define interrupt 5                    // interrupt pin for RTC (NOTE: 5 is INT5, the hardware interrupt that is on pin 18)
+#define interruptPin 18                //
 
 int sampling_rate = 15;                // initialize the delay between loops. This can be changed with subscribe
 const int keepAlive_mins = round(MQTT_CONN_KEEPALIVE / 60);
@@ -86,6 +87,26 @@ Adafruit_MQTT_Subscribe feed_deploy = Adafruit_MQTT_Subscribe(&mqtt, AIO_USERNAM
 Adafruit_MQTT_Subscribe feed_sampling_rate = Adafruit_MQTT_Subscribe(&mqtt, AIO_USERNAME "/feeds/sampling-rate");
 Adafruit_MQTT_Subscribe feed_sea_level = Adafruit_MQTT_Subscribe(&mqtt, AIO_USERNAME "/feeds/initial-sea-level");
 Adafruit_MQTT_Subscribe feed_update_gps_sub = Adafruit_MQTT_Subscribe(&mqtt, AIO_USERNAME "/feeds/update-gps");
+
+
+////************************************ UNCOMMENT FOR FEEDS BELONGING TO SENSOR 2 ************************************************************
+//// THE PUBLISHING FEEDS ------------------------------------------------------------------------------
+//Adafruit_MQTT_Publish feed_location = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/feeds/whs-2.location/csv");
+//Adafruit_MQTT_Publish feed_temp = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/feeds/whs-2.temperature");
+//Adafruit_MQTT_Publish feed_pressure = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/feeds/whs-2.pressure");
+//Adafruit_MQTT_Publish feed_stage = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/feeds/whs-2.stage");
+//Adafruit_MQTT_Publish feed_pts = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/feeds/whs-2.pressure-to-stage");
+//Adafruit_MQTT_Publish feed_update_gps_pub = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/feeds/whs-2.update-gps");
+//Adafruit_MQTT_Publish feed_fona_lipo = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/feeds/whs-2.lipo-battery");
+//Adafruit_MQTT_Publish feed_external_temp = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/feeds/whs-2.external-temperature");
+//Adafruit_MQTT_Publish feed_voltage = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/feeds/whs-2.package-battery");
+//Adafruit_MQTT_Publish feed_power = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/feeds/whs-2.package-power");
+//
+//// THE SUBSCRIBING FEEDS -----------------------------------------------------------------------------
+//Adafruit_MQTT_Subscribe feed_deploy = Adafruit_MQTT_Subscribe(&mqtt, AIO_USERNAME "/feeds/whs-2.deploy");
+//Adafruit_MQTT_Subscribe feed_sampling_rate = Adafruit_MQTT_Subscribe(&mqtt, AIO_USERNAME "/feeds/whs-2.sampling-rate");
+//Adafruit_MQTT_Subscribe feed_sea_level = Adafruit_MQTT_Subscribe(&mqtt, AIO_USERNAME "/feeds/whs-2.initial-sea-level");
+//Adafruit_MQTT_Subscribe feed_update_gps_sub = Adafruit_MQTT_Subscribe(&mqtt, AIO_USERNAME "/feeds/whs-2.update-gps");
 
 // define the SS for SD card
 #define chipSelect 53
