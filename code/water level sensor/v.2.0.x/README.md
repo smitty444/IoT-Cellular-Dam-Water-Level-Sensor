@@ -15,3 +15,9 @@
 
 # WHS_v2.0.3.ino
 - add external temperature sensor
+
+# WHS_v2.0.4.ino
+- add voltage sensor and integrate with power board
+
+# WHS_v2.0.5.ino
+- add median filtering technique
