@@ -3,7 +3,7 @@
 #include <DS3232RTC.h>                  // for the RTC https://github.com/JChristensen/DS3232RTC
 #include <avr/sleep.h>                  // for sleep mode
 
-int sampling_rate = 5;
+int sampling_rate = 15;
 
 #define interrupt 5                     // corresponds to digital pin 18 on Mega
 
@@ -25,20 +25,20 @@ void setup() {
   RTC.squareWave(SQWAVE_NONE);
 
   // uncomment to set an initial alarm
-  //  time_t t = RTC.get();
-  //
-  //  if(second(t) < 60 - sampling_rate) {
-  //    RTC.setAlarm(ALM1_MATCH_SECONDS, second(t) + sampling_rate, 0, 0, 0);
-  //  }
-  //  else {
-  //    RTC.setAlarm(ALM1_MATCH_SECONDS, second(t) - 60 + sampling_rate, 0, 0, 0);
-  //  }
-  //
+    time_t t = RTC.get();
+  
+    if(second(t) < 60 - sampling_rate) {
+      RTC.setAlarm(ALM1_MATCH_SECONDS, second(t) + sampling_rate, 0, 0, 0);
+    }
+    else {
+      RTC.setAlarm(ALM1_MATCH_SECONDS, second(t) - 60 + sampling_rate, 0, 0, 0);
+    }
+  
   //  RTC.alarm(ALARM_1);
 
-  //  RTC.alarm(ALARM_1);
-  //  RTC.squareWave(SQWAVE_NONE);
-  //  RTC.alarmInterrupt(ALARM_1, true);
+    RTC.alarm(ALARM_1);
+    RTC.squareWave(SQWAVE_NONE);
+    RTC.alarmInterrupt(ALARM_1, true);
 
 }
 
