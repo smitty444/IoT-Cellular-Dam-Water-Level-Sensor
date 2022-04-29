@@ -21,8 +21,9 @@ plt.close('all')
 
 
 filter_df = pd.read_csv('filters.csv')
-x = np.array(range(0,97))
+x = np.array(range(5,102))
 
+#%% Comparing filters
 plt.figure(figsize=(6.5,3.5))
 plt.plot(x, filter_df["true signal"], label="true signal")
 plt.plot(x, filter_df["kalman"], marker ="x", label="kalman filter")
@@ -36,4 +37,5 @@ plt.ylabel('distance (ft)')
 #plt.xticks(rotation=45)
 plt.tight_layout()
 plt.grid(True)
-plt.savefig('filters.png', dpi=500)
+#plt.savefig('filters.png', dpi=500)
+
