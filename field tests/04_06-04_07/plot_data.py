@@ -24,7 +24,7 @@ df1 = pd.read_csv('stage_data.csv', parse_dates= {"Datetime" : [3,4]})
 df2 = pd.read_csv('pressure_data.csv', parse_dates={"Datetime" : [3,4]})
 df3 = pd.read_csv('adaptive_stage_data.csv', parse_dates={"Datetime" : [3,4]})
 
-## normal figure
+#%% normal figure
 plt.figure(figsize=(6.5,3.5))
 plt.plot(df0['Datetime'], df0['stage'], '-', label='USGS 02169506', linewidth=0.75)
 plt.plot(df1['Datetime'], df1['value'], '--', label='ultrasonic sensor', linewidth=0.75)
@@ -39,7 +39,7 @@ plt.grid(True)
 plt.savefig('data.png', dpi=500)
 
 
-## adaptive comparison
+#%% adaptive comparison
 plt.figure(figsize=(6.5,3.5))
 plt.plot(df0['Datetime'][0 : 28], df0['stage'][0 : 28], '-', label='USGS 02169506', linewidth=0.75)
 plt.plot(df1['Datetime'][0 : 123], df1['value'][0 : 123], '--', marker='x', label='fixed sampling', linewidth=0.75)
@@ -52,5 +52,7 @@ plt.xticks(rotation=45)
 plt.tight_layout()
 plt.grid(True)
 plt.savefig('adaptive.png', dpi=500)
+
+print(df3[])
 
 
