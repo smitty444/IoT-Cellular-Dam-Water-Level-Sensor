@@ -70,6 +70,7 @@ Adafruit_FONA_LTE fona = Adafruit_FONA_LTE();
 // pass in fona class and server details to mqtt class
 Adafruit_MQTT_FONA mqtt(&fona, AIO_SERVER, AIO_SERVERPORT, AIO_USERNAME, AIO_KEY);
 
+//************************************ UNCOMMENT FOR FEEDS BELONGING TO SENSOR 1 ************************************************************
 // THE PUBLISHING FEEDS ------------------------------------------------------------------------------
 Adafruit_MQTT_Publish feed_location = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/feeds/location/csv");
 Adafruit_MQTT_Publish feed_temp = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/feeds/temperature");
