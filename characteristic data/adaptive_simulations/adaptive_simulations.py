@@ -33,6 +33,9 @@ adaptive_4: last replacement filter with the original adaptive sampling function
 adaptive_5: last replacement filter with the sigmoid function ranging from 20 to 4, responsive x values mapped from 0.01 - 0.52
 adaptive_6: last replacement filter with the sigmoid function ranging from 20 to 4, responsive x values mapped from 0.01 - 0.52, first derivatives
 adaptive_7: last replacement filter with the sigmoid function ranging from 20 to 4, responsive x values mapped from 0.1 - 0.5, first derivatives
+
+conclusion: adaptive_5 is best
+
 """
 
 
