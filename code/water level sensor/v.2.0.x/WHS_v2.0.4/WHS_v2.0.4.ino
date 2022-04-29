@@ -78,6 +78,8 @@ Adafruit_MQTT_Publish feed_pts = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/fee
 Adafruit_MQTT_Publish feed_update_gps_pub = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/feeds/update-gps");
 Adafruit_MQTT_Publish feed_fona_lipo = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/feeds/lipo-battery");
 Adafruit_MQTT_Publish feed_external_temp = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/feeds/external-temperature");
+Adafruit_MQTT_Publish feed_voltage = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/feeds/package-battery");
+Adafruit_MQTT_Publish feed_power = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/feeds/package-power");
 
 // THE SUBSCRIBING FEEDS -----------------------------------------------------------------------------
 Adafruit_MQTT_Subscribe feed_deploy = Adafruit_MQTT_Subscribe(&mqtt, AIO_USERNAME "/feeds/deploy");
@@ -503,6 +505,8 @@ void loop() {
   MQTT_publish_checkSuccess(feed_pressure, pressBuff);
   MQTT_publish_checkSuccess(feed_pts, ptsBuff);
   MQTT_publish_checkSuccess(feed_fona_lipo, lipoBuff);
+  MQTT_publish_checkSuccess(feed_voltage, voltBuff);
+  MQTT_publish_checkSuccess(feed_power, powerBuff);
 
   // reassign the sampling rate
   if (new_time == true) {
