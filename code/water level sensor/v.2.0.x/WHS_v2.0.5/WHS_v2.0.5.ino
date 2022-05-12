@@ -124,7 +124,7 @@ Adafruit_MPRLS mpr = Adafruit_MPRLS(-1, -1);      // Adafruit_MPRLS(RESET_PIN, E
 NewPing sonar(trigPin, echoPin);
 const int window = 5;           // if you change this, be sure to change the arguments of ultrasonicMedian(dist[0-window-1]) in the loop()
 float dist[window];
-float tolerance = 1.5;      // how many feet +/- we can expect a valid reading to be within of the last reading (we dont expect it to jump 4 feet in 4 minutes)
+float distError = 1.5;      // how many feet +/- we can expect a valid reading to be within of the last reading (we dont expect it to jump 4 feet in 4 minutes)
 float filtered;
 
 // define the pressure sensor pin
@@ -383,7 +383,7 @@ void loop() {
     distance = distance / 12;
     Serial.print(distance);
     //delay(200);
-    if (distance > dist[window - 1] + tolerance || distance < dist[window - 1] - tolerance) {        // means the value is likely an error! apply median filter
+    if (distance > dist[window - 1] + distError || distance < dist[window - 1] - distError) {        // means the value is likely an error! apply median filter
         filtered = bubble_sort(dist[window - 5], dist[window - 4], dist[window - 3], dist[window - 2], dist[window - 1]);                         // NOTE: change the value of these if you change the window size
     }
     else {
