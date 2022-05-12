@@ -21,3 +21,8 @@
 
 # WHS_v2.0.5.ino
 - add median filtering technique
+
+# WHS_v2.0.6.ino
+- copied from WHS_v2.0.4
+- does not have the median filter in order to send raw data and post process
+- add contact sensor feed
