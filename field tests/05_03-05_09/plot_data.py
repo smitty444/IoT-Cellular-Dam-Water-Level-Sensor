@@ -12,6 +12,8 @@ from datetime import datetime
 import pandas as pd
 import pylab as pl
 import numpy as np
+import sys
+np.set_printoptions(threshold=sys.maxsize)
 plt.rcParams["font.family"] = "Times New Roman"
 #mpl.rcParams.update({'font.size': 14})
 
@@ -39,6 +41,29 @@ plt.tight_layout()
 plt.grid(True)
 plt.savefig('data.png', dpi=500)
 
+#%% Adaptive sampling
+
+# create the array to copy into the adaptive simulator in Arduino
+# values = np.array(df1["value"].values.tolist())
+# a = values.tolist()
+# print(a)
+
+# create an x array for the indicies of the fixed sampling
+x = np.array(range(0,2324))
+
+plt.figure(figsize=(6.5,3.5))
+plt.plot(x, df1['value'], '--', marker='o', label='fixed sampling', linewidth=0.75)
+plt.plot(df1['adaptive index'], df1['adaptive value'], '--', marker='x', label='adaptive sampling', linewidth=0.75)
+plt.legend(framealpha=1)
+plt.xlabel('datetime')
+plt.ylabel('elevation (ft)')
+plt.locator_params(axis="x", nbins=5)
+plt.xticks(rotation=45)
+plt.tight_layout()
+plt.grid(True)
+plt.savefig('adaptive.png', dpi=500)
+
+
 #%% Temperature-based pressure drift?
 
 fig,a = plt.subplots(figsize=(6.5,3.5))
@@ -48,7 +73,7 @@ a.plot(df2['Datetime'], df2['value'], ':', label='pressure sensor', linewidth=0.
 a2 = a.twinx()
 a2.plot(df0['Datetime'], df0['temperature'], '--', color='green', label='USGS temperature', linewidth=0.75)
 
-plt.legend(framealpha=1)
+plt.legend()
 plt.xlabel('datetime')
 a.ylabel('elevation (ft)')
 a2.ylabel('temperature (C)')
