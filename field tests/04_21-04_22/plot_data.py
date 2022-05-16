@@ -4,6 +4,7 @@ Created on Fri Apr  1 11:45:46 2022
 
 @author: SmithCA
 """
+
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
@@ -22,37 +23,37 @@ plt.close('all')
 df0 = pd.read_csv('usgs_data.csv',parse_dates=     {"Datetime" : [2,3]})
 df1 = pd.read_csv('stage_data.csv', parse_dates= {"Datetime" : [3,4]})
 df2 = pd.read_csv('pressure_data.csv', parse_dates={"Datetime" : [3,4]})
-df3 = pd.read_csv('adaptive_stage_data.csv', parse_dates={"Datetime" : [3,4]})
 
-#%% normal figure
+
+
 plt.figure(figsize=(6.5,3.5))
-plt.plot(df0['Datetime'], df0['stage'], '-', label='USGS 02169506', linewidth=0.75)
+plt.plot(df0['Datetime'], df0['stage'], '-', label='USGS 02169000', linewidth=0.75)
 plt.plot(df1['Datetime'], df1['value'], '--', label='ultrasonic sensor', linewidth=0.75)
-plt.plot(df2['Datetime'], df2['value'], '-.', label='pressure sensor', linewidth=0.75)
+plt.plot(df2['Datetime'], df2['value'], ':', label='pressure sensor', linewidth=0.75)
 plt.legend(framealpha=1)
 plt.xlabel('datetime')
-plt.ylabel('distance (ft)')
+plt.ylabel('elevation (ft)')
 plt.locator_params(axis="x", nbins=5)
 plt.xticks(rotation=45)
 plt.tight_layout()
 plt.grid(True)
 plt.savefig('data.png', dpi=500)
 
+#%% Temperature-based pressure drift?
 
-#%% adaptive comparison
-plt.figure(figsize=(6.5,3.5))
-plt.plot(df0['Datetime'][0 : 28], df0['stage'][0 : 28], '-', label='USGS 02169506', linewidth=0.75)
-plt.plot(df1['Datetime'][0 : 123], df1['value'][0 : 123], '--', marker='x', label='fixed sampling', linewidth=0.75)
-plt.plot(df3['Datetime'], df3['value'], '-.', marker='o', label='adaptive sampling', linewidth=0.75)
+fig,a = plt.subplots(figsize=(6.5,3.5))
+a.plot(df0['Datetime'], df0['stage'], '-', label='USGS stage', linewidth=0.75)
+#plt.plot(df1['Datetime'], df1['value'], '--', label='ultrasonic sensor', linewidth=0.75)
+a.plot(df2['Datetime'], df2['value'], ':', label='pressure sensor', linewidth=0.75)
+a2 = a.twinx()
+a2.plot(df0['Datetime'], df0['temperature'], '--', color='green', label='USGS temperature', linewidth=0.75)
+
 plt.legend(framealpha=1)
 plt.xlabel('datetime')
-plt.ylabel('distance (ft)')
+a.ylabel('elevation (ft)')
+a2.ylabel('temperature (C)')
 plt.locator_params(axis="x", nbins=5)
 plt.xticks(rotation=45)
 plt.tight_layout()
 plt.grid(True)
-plt.savefig('adaptive.png', dpi=500)
-
-print(df3[])
-
-
+plt.savefig('temperature_drift.png', dpi=500)
