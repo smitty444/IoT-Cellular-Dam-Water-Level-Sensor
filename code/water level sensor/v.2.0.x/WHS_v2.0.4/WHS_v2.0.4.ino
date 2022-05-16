@@ -78,6 +78,8 @@ Adafruit_MQTT_Publish feed_pts = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/fee
 Adafruit_MQTT_Publish feed_update_gps_pub = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/feeds/update-gps");
 Adafruit_MQTT_Publish feed_fona_lipo = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/feeds/lipo-battery");
 Adafruit_MQTT_Publish feed_external_temp = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/feeds/external-temperature");
+Adafruit_MQTT_Publish feed_voltage = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/feeds/package-battery");
+Adafruit_MQTT_Publish feed_power = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/feeds/package-power");
 
 // THE SUBSCRIBING FEEDS -----------------------------------------------------------------------------
 Adafruit_MQTT_Subscribe feed_deploy = Adafruit_MQTT_Subscribe(&mqtt, AIO_USERNAME "/feeds/deploy");
@@ -123,7 +125,7 @@ float sea_level = 0;
 
 void setup() {
   Serial.begin(9600);
-  Serial.println(F("*** Executing WHS_v2.0.2.ino ***"));
+  Serial.println(F("*** Executing WHS_v2.0.4.ino ***"));
 
   // configure the led
   pinMode(redLed, OUTPUT);
@@ -280,7 +282,7 @@ void setup() {
   }
 
   // find the initial distance that will correspond to sea level
-  while (initial_distance <= 0) {
+  while (initial_distance <= 9) {
     initial_distance = sonar.ping_in();
     delay(50);
   }
@@ -339,7 +341,7 @@ void loop() {
 
   // take stage data
   float distance = 0;
-  while (distance <= 0) {
+  while (distance <= 9) {
     distance = sonar.ping_in();
     delay(50);
   }
@@ -503,6 +505,8 @@ void loop() {
   MQTT_publish_checkSuccess(feed_pressure, pressBuff);
   MQTT_publish_checkSuccess(feed_pts, ptsBuff);
   MQTT_publish_checkSuccess(feed_fona_lipo, lipoBuff);
+  MQTT_publish_checkSuccess(feed_voltage, voltBuff);
+  MQTT_publish_checkSuccess(feed_power, powerBuff);
 
   // reassign the sampling rate
   if (new_time == true) {
