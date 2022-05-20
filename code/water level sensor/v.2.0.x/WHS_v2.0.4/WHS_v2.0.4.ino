@@ -125,7 +125,7 @@ float sea_level = 0;
 
 void setup() {
   Serial.begin(9600);
-  Serial.println(F("*** Executing WHS_v2.0.2.ino ***"));
+  Serial.println(F("*** Executing WHS_v2.0.4.ino ***"));
 
   // configure the led
   pinMode(redLed, OUTPUT);
@@ -282,7 +282,7 @@ void setup() {
   }
 
   // find the initial distance that will correspond to sea level
-  while (initial_distance <= 0) {
+  while (initial_distance <= 9) {
     initial_distance = sonar.ping_in();
     delay(50);
   }
@@ -341,7 +341,7 @@ void loop() {
 
   // take stage data
   float distance = 0;
-  while (distance <= 0) {
+  while (distance <= 9) {
     distance = sonar.ping_in();
     delay(50);
   }
