@@ -75,8 +75,8 @@ a2.plot(df0['Datetime'], df0['temperature'], '--', color='green', label='USGS te
 
 plt.legend()
 plt.xlabel('datetime')
-a.ylabel('elevation (ft)')
-a2.ylabel('temperature (C)')
+a.set_ylabel('elevation (ft)')
+a2.set_ylabel('temperature (C)')
 plt.locator_params(axis="x", nbins=5)
 plt.xticks(rotation=45)
 plt.tight_layout()
