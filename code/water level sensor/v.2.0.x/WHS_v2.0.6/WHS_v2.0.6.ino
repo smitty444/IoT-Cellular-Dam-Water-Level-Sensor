@@ -129,7 +129,7 @@ float sea_level = 0;
 
 void setup() {
   Serial.begin(9600);
-  Serial.println(F("*** Executing WHS_v2.0.2.ino ***"));
+  Serial.println(F("*** Executing WHS_v2.0.6.ino ***"));
 
   // configure the led
   pinMode(redLed, OUTPUT);
@@ -286,11 +286,11 @@ void setup() {
   }
 
   // find the initial distance that will correspond to sea level
-  while (initial_distance <= 0) {
-    initial_distance = sonar.ping_in();
+  while (initial_distance <= 23) {
+    initial_distance = sonar.ping_cm();
     delay(50);
   }
-  initial_distance = initial_distance / 12;
+  initial_distance = initial_distance / 30.48;
   Serial.print("initial distance: "); Serial.print(initial_distance); Serial.println(" ft");
   delay(50);
 
@@ -323,10 +323,10 @@ void loop() {
 
   // take package temperature data
   tempsensor.wake();
-  float tempC = tempsensor.readTempC();
-  Serial.print("Package temperature: "); Serial.print(tempC); Serial.print("*C\t");
+  float tempF = tempsensor.readTempF();
+  Serial.print("Package temperature: "); Serial.print(tempF); Serial.print("*F\t");
   char tempBuff[6];
-  dtostrf(tempC, 1, 2, tempBuff);
+  dtostrf(tempF, 1, 2, tempBuff);
   Serial.println("Shutting down the MCP9808...");
   tempsensor.shutdown();                                // In this mode the MCP9808 draws only about 0.1uA
 
@@ -345,11 +345,11 @@ void loop() {
 
   // take stage data
   float distance = 0;
-  while (distance <= 0) {
-    distance = sonar.ping_in();
+  while (distance <= 23) {
+    distance = sonar.ping_cm();
     delay(50);
   }
-  distance = distance / 12;
+  distance = distance / 30.48;
   Serial.print("Ultrasonic distance: "); Serial.print(distance); Serial.println(" ft");
   distance = sea_level + (initial_distance - distance);
   Serial.print("\tabove sea level: "); Serial.print(distance); Serial.println(" ft");
@@ -381,6 +381,7 @@ void loop() {
   float power_mW = 0;
   busvoltage = ina219.getBusVoltage_V();
   power_mW = ina219.getPower_mW();
+  busvoltage = busvoltage + 0.8;      // account for voltage drop across diode
   Serial.print("Bus Voltage:   "); Serial.print(busvoltage); Serial.println(" V");
   Serial.print("Power:         "); Serial.print(power_mW); Serial.println(" mW");
   Serial.println("");
