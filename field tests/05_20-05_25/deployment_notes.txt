@@ -1,0 +1,11 @@
+----------------------------------------------------------------
+Deployment Dates: May 20 2022 11:07 - May 25 2022 10:51
+Deployment Location: Clemson Sandhills Dam
+Rain event?: Yes, May 21
+Cause of failure: small LiPo battery discharged
+----------------------------------------------------------------
+Notes:
+- Solar panel was effective in charging the 12V battery back to full each day
+- Solar panel was mounted in full sun
+- Package and solar panel mounted on primary spillway
+- Temperature exceeded 100F, at which point the temperature sensor stopped sending data to Adafruit, even though other sensors would
