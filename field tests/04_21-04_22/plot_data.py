@@ -13,7 +13,7 @@ import pandas as pd
 import pylab as pl
 import numpy as np
 plt.rcParams["font.family"] = "Times New Roman"
-#mpl.rcParams.update({'font.size': 14})
+mpl.rcParams.update({'font.size': 16})
 
 import IPython as IP
 IP.get_ipython().magic('reset -sf')
@@ -41,7 +41,7 @@ plt.savefig('data.png', dpi=500)
 
 #%% Temperature-based pressure drift?
 
-fig,a = plt.subplots(figsize=(6.5,3.5))
+fig,a = plt.subplots(figsize=(6.5,4))
 a.plot(df0['Datetime'], df0['stage'], '-', label='USGS stage', linewidth=0.75)
 #plt.plot(df1['Datetime'], df1['value'], '--', label='ultrasonic sensor', linewidth=0.75)
 a.plot(df2['Datetime'], df2['value'], ':', label='pressure sensor', linewidth=0.75)
@@ -56,4 +56,4 @@ plt.locator_params(axis="x", nbins=5)
 plt.xticks(rotation=45)
 plt.tight_layout()
 plt.grid(True)
-plt.savefig('temperature_drift.png', dpi=500)
+#plt.savefig('temperature_drift.png', dpi=500)
