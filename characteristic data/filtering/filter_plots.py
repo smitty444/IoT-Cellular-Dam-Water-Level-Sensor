@@ -21,13 +21,13 @@ plt.close('all')
 
 
 filter_df = pd.read_csv('filters.csv')
-x = np.array(range(5,102))
+x = np.array(range(0,97))
 
 #%% Comparing filters
 plt.figure(figsize=(6.5,3.7))
 plt.plot(x, filter_df["true signal"], label="true signal")
-plt.plot(x, filter_df["kalman"], marker ="x", label="kalman filter")
-plt.plot(x, filter_df["moving average"], ".-",  label="moving average filter")
+plt.plot(x, filter_df["kalman"], ":", label="kalman filter")
+plt.plot(x, filter_df["moving average"], "-.",  label="moving average filter")
 plt.plot(x, filter_df["median"], "--", label="median filter")
 #plt.plot(x, filter_df["last replacement"],":",  label = "last replacement filter")
 plt.legend(framealpha=1)
