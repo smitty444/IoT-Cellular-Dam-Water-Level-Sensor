@@ -28,8 +28,8 @@ df2 = pd.read_csv('pressure_data.csv', parse_dates={"Datetime" : [3,4]})
 
 
 plt.figure(figsize=(6.5,4))
-plt.plot(df1['Datetime'], df1['value'], '--', label='ultrasonic sensor', linewidth=0.75)
-plt.plot(df2['Datetime'], df2['value'], ':', label='pressure sensor', linewidth=0.75)
+plt.plot(df1['Datetime'], df1['value'], '--', label='ultrasonic sensor', color="orange")
+plt.plot(df2['Datetime'], df2['value'], ':', label='pressure sensor', color="green")
 plt.legend(framealpha=1)
 plt.xlabel('datetime')
 plt.ylabel('elevation (ft)')
