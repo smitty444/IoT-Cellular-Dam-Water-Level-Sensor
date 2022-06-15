@@ -19,3 +19,15 @@ contains all electronic design automation (EDA) files for the custom datalogging
 
 ## field tests
 contains data for all field tests performed with the sensor package, as well as Python scripts for visualizing data
+
+# Citation
+Cite as:
+
+@Misc{Smith2022DHECStageSensor,     
+  author = {Corinne Smith and Parker Lovett and John McCain and Austin Downey},  
+  howpublished = {GitHub},  
+  title  = {DHEC Stage Sensor},
+  year   = {2022},  
+  groups = {{ARTS-L}ab},    
+  url    = {https://github.com/ARTS-Laboratory/DHEC-Stage-Sensor},   
+}
