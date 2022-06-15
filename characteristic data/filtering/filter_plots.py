@@ -26,7 +26,7 @@ x = np.array(range(0,97))
 #%% Comparing filters
 plt.figure(figsize=(6.5,3.7))
 plt.plot(x, filter_df["true signal"], label="true signal")
-plt.plot(x, filter_df["kalman"], ":", label="kalman filter")
+plt.plot(x, filter_df["kalman"], ":", label="Kalman filter")
 plt.plot(x, filter_df["moving average"], "-.",  label="moving average filter")
 plt.plot(x, filter_df["median"], "--", label="median filter")
 #plt.plot(x, filter_df["last replacement"],":",  label = "last replacement filter")
