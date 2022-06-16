@@ -91,8 +91,8 @@ Adafruit_FONA_LTE fona = Adafruit_FONA_LTE();
 // For Adafruit IO:
 #define AIO_SERVER      "io.adafruit.com"
 #define AIO_SERVERPORT  1883
-#define AIO_USERNAME    "smitty444"
-#define AIO_KEY         "aio_UtgK29tCMxzEDaRMLQeGj6wY7P0B"
+#define AIO_USERNAME    "YOUR AIO USER"
+#define AIO_KEY         "YOUR AIO KEY"
 
 // Setup the FONA MQTT class by passing in the FONA class and MQTT server and login details.
 Adafruit_MQTT_FONA mqtt(&fona, AIO_SERVER, AIO_SERVERPORT, AIO_USERNAME, AIO_KEY);
