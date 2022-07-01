@@ -1,0 +1,8 @@
+This HOBO sensor system was deployed with the DHEC sensor from June 14 - June 26 2022. 
+The primary purpose is to determine a function to calibrate the pressure transducer.
+Data from the DHEC sensor is found in field_tests/06_14-06_26
+
+HOBO sensor serial numbers: 
+Wet sensor SN: 1181041
+Dry sensor SN: 1181936
+
