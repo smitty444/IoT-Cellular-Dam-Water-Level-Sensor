@@ -15,7 +15,7 @@ import numpy as np
 import sys
 np.set_printoptions(threshold=sys.maxsize)
 plt.rcParams["font.family"] = "Times New Roman"
-mpl.rcParams.update({'font.size': 14})
+mpl.rcParams.update({'font.size': 16})
 
 import IPython as IP
 IP.get_ipython().magic('reset -sf')
