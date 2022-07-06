@@ -45,19 +45,19 @@ plt.savefig('data.png', dpi=500)
 
 #%% With manual median filter
 
-plt.figure(figsize=(6.5,3.5))
+plt.figure(figsize=(6.5,4.5))
 plt.plot(df0['Datetime'], df0['stage'], '-', label='USGS 02169000')
 plt.plot(df3['Datetime'], df3['value'], '--', label='ultrasonic sensor')
 plt.plot(df5['Datetime'], df5['elevation'], ':', label='pressure sensor')
 plt.plot(df6['Datetime'], df6['Sensor depth with corrected elevation'], "-.", label = "HOBO sensor")
-#plt.legend(framealpha=1)
+plt.legend(framealpha=1)
 plt.xlabel('datetime')
 plt.ylabel('elevation (ft)')
 plt.locator_params(axis="x", nbins=5)
 plt.xticks(rotation=45)
 plt.tight_layout()
 plt.grid(True)
-#plt.savefig('data_filtered.png', dpi=500)
+plt.savefig('data_filtered.png', dpi=500)
 
 
 #%% Comparing raw water HOBO pressure with pressure sensor
