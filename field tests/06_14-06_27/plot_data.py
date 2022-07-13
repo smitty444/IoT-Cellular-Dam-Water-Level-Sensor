@@ -45,7 +45,7 @@ plt.savefig('data.png', dpi=500)
 
 #%% With manual median filter
 
-plt.figure(figsize=(6.5,3.5))
+plt.figure(figsize=(6.5,4.5))
 plt.plot(df0['Datetime'], df0['stage'], '-', label='USGS 02169000')
 plt.plot(df3['Datetime'], df3['value'], '--', label='ultrasonic sensor')
 plt.plot(df5['Datetime'], df5['elevation'], ':', label='pressure sensor')

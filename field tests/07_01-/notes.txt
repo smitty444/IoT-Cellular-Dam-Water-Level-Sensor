@@ -1,0 +1,6 @@
+Deployed on Spring lake dam
+
+Initial sea level: 178.9 but read as 178
+
+** BATTERY CHANGES **
+7/5/22: changed out small lipo battery, sea level was 178.16 + 0.9
