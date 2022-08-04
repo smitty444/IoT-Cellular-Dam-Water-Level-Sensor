@@ -29,5 +29,5 @@ Cite as:
   title  = {DHEC Stage Sensor},
   year   = {2022},  
   groups = {ARTS-Lab},    
-  url    = {https://github.com/ARTS-Laboratory/IoT-Cellular-Dam-Water-Level-Sensor},   
+  url    = {https://github.com/ARTS-Laboratory/IoT-Cellular-Dam-Water-Level-Sensor },   
 }
