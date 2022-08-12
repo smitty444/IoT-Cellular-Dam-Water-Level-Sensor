@@ -14,7 +14,7 @@ import pylab as pl
 import numpy as np
 import sys
 np.set_printoptions(threshold=sys.maxsize)
-plt.rcParams["font.family"] = "Arial"
+plt.rcParams["font.family"] = "Times New Roman"
 mpl.rcParams.update({'font.size': 12})
 
 import IPython as IP
@@ -56,7 +56,7 @@ plt.grid(True)
 
 #%% rainfall subplot
 
-fig, a = plt.subplots(figsize=(7.5,3.5))
+fig, a = plt.subplots(figsize=(6,4))
 
 a.plot(df3['Datetime'], df3['stage'], '--', color="orange", label='ultrasonic sensor')
 a.plot(df2['Datetime'], df2['elevation'], ':', color = "green", label='pressure transducer')
