@@ -17,7 +17,7 @@ Figure 1: Datalogger board showing a) the PCB layout and the 3D rendering of the
 The power control PCB is used to monitor the package battery voltage and regulate the voltage to 5V for powering the Arduino Mega. It contains the INA219 current sensor and a barrel battery connector. 
 
 <p align="center">
-<img src="power_board_v1/power_board_v1.png" alt="drawing" width="700"/>
+<img src="power_board/power_board_v1.png" alt="drawing" width="700"/>
 </p>
 <p align="center">
 Figure 1: Power control board showing a) the PCB layout and the 3D rendering of the PCB b) front and c) back.
