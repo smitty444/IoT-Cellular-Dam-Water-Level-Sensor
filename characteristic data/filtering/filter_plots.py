@@ -13,7 +13,7 @@ import pandas as pd
 import pylab as pl
 import numpy as np
 plt.rcParams["font.family"] = "Times New Roman"
-mpl.rcParams.update({'font.size': 16})
+mpl.rcParams.update({'font.size': 14})
 
 import IPython as IP
 IP.get_ipython().magic('reset -sf')
@@ -24,7 +24,7 @@ filter_df = pd.read_csv('filters.csv')
 x = np.array(range(0,97))
 
 #%% Comparing filters
-plt.figure(figsize=(6.5,3.7))
+plt.figure(figsize=(7.5,3.5))
 plt.plot(x, filter_df["true signal"], label="true signal")
 plt.plot(x, filter_df["kalman"], ":", label="Kalman filter")
 plt.plot(x, filter_df["moving average"], "-.",  label="moving average filter")
